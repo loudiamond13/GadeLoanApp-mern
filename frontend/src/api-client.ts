@@ -2,7 +2,7 @@ import { SignInFormData } from "./pages/SignIn";
 import { RegisterFormData } from "./pages/register";
 
 //gets the base url from env file
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 //register user using the data comming from formdata/body
 export const register = async (formData:RegisterFormData) =>  
@@ -35,7 +35,7 @@ export const signIn = async (formData:SignInFormData) =>
     method: 'POST',
     credentials:'include', // tells the browser  to include cookies in requests made to this URL
     headers:{'Content-Type': 'application/json'}, // tells the backend  that we are sending json format // content type
-    body: JSON.stringify(formData) 
+    body: JSON.stringify(formData),
   });
 
 

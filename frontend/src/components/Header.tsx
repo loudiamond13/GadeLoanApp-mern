@@ -51,7 +51,7 @@ const Header = () => {
         
         </span>
        </>
-        )};
+        )}
       </div>
     </div>
   </nav>
