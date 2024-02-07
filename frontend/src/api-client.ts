@@ -30,7 +30,7 @@ export const register = async (formData:RegisterFormData) =>
 //sign in from data
 export const signIn = async (formData:SignInFormData) => 
 {
-  const response = await fetch(`${API_BASE_URL}/api/auth/login`, 
+  const response = await fetch(`${API_BASE_URL}/api/auth/login/`, 
   {
     method: 'POST',
     credentials:'include', // tells the browser  to include cookies in requests made to this URL

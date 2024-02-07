@@ -34,7 +34,7 @@ const Header = () => {
         {isLoggedIn ? 
         (
         <>
-        <span className="navbar-text">
+        <span className="navbar-item">
           <LogOutBtn/>
         </span>
         </>
@@ -42,13 +42,15 @@ const Header = () => {
         :
         (
        <>
-        <span className="navbar-text">
-          <Link className="mx-5  text-light nav-link" to="/sign-in">Sign In</Link>
-         
-        </span>
-        <span className="navbar-text">
-          <Link className="mx-5  text-light nav-link" to="/register">Register</Link>
+       <span className="navbar-item ">
+       
+          <Link className="me-5 my-3 text-light nav-link " to="/sign-in">Sign In</Link>
         
+       </span>
+        <span className="navbar-item ">
+        
+          <Link className="me-5 my-3  text-light nav-link" to="/register">Register</Link>
+    
         </span>
        </>
         )}
