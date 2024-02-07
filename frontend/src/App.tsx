@@ -8,7 +8,7 @@ import Layout from "./layouts/Layout";
 import SignIn from "./pages/SignIn";
 import CreateCustomer from "./pages/CreateCustomer";
 import { useAppContext } from "./contexts/AppContext";
-import Register from "./pages/Register";
+import Register from "./pages/register";
 
 function App() {
   //  const [count, setCount] = useState(0)

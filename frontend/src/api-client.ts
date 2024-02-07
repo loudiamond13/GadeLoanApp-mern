@@ -1,5 +1,5 @@
 import { SignInFormData } from "./pages/SignIn";
-import { RegisterFormData } from "./pages/Register";
+import { RegisterFormData } from "./pages/register";
 
 //gets the base url from env file
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
