@@ -4,10 +4,11 @@
 import{BrowserRouter as Router,Route,Routes,Navigate,} from "react-router-dom";
 import './App.scss';
 import Layout from "./layouts/Layout";
-import Register from "./pages/Register";
+
 import SignIn from "./pages/SignIn";
 import CreateCustomer from "./pages/CreateCustomer";
 import { useAppContext } from "./contexts/AppContext";
+import Register from "./pages/Register";
 
 function App() {
   //  const [count, setCount] = useState(0)
