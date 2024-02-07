@@ -10,7 +10,7 @@ declare global
   {
     interface Request
     {
-      userID: string;
+      userId: string;
     }
   }
 }
@@ -33,7 +33,7 @@ const verifyToken =(req: Request,res: Response, next: NextFunction )=>
   {
     //verify the token using jsonwebtoken library
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY as string);
-    req.userID = (decoded as JwtPayload).userID;
+    req.userId = (decoded as JwtPayload).userID;
     next();
   }
   catch(error)

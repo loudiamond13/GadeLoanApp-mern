@@ -25,7 +25,7 @@ const Header = () => {
                <a className="me-2  text-light nav-link"  href="/sign-in ">Creditor List</a>
               </li>
               <li className="nav-item">
-               <a className="me-2  text-light nav-link"  href="/sign-in ">List</a>
+               <Link to='create-customer' className="me-2  text-light nav-link">Create Customer</Link>
               </li>
             </>)
             :(<><span></span></>)

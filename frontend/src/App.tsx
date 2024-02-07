@@ -4,12 +4,14 @@
 import{BrowserRouter as Router,Route,Routes,Navigate,} from "react-router-dom";
 import './App.scss';
 import Layout from "./layouts/Layout";
-import Register from "./pages/register";
+import Register from "./pages/Register";
 import SignIn from "./pages/SignIn";
+import CreateCustomer from "./pages/CreateCustomer";
+import { useAppContext } from "./contexts/AppContext";
 
 function App() {
   //  const [count, setCount] = useState(0)
-
+  const {isLoggedIn} = useAppContext();
   return (
     <Router>
       <Routes>
@@ -33,6 +35,12 @@ function App() {
         <Route 
         path="/sign-in" 
         element={<Layout><SignIn/></Layout>}/>
+
+        {isLoggedIn && 
+        <>
+          <Route path="/create-customer" 
+          element={<Layout><CreateCustomer/></Layout>}/>
+        </>}
         <Route 
         path='*' 
         element= {<Navigate to="/" />}/>

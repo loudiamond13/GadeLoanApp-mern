@@ -1,5 +1,5 @@
 import { SignInFormData } from "./pages/SignIn";
-import { RegisterFormData } from "./pages/register";
+import { RegisterFormData } from "./pages/Register";
 
 //gets the base url from env file
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
@@ -73,4 +73,23 @@ export const logOut = async () =>
   {
     throw new Error("ERROR ON SIGNING OUT!");
   }
-}
+};
+
+
+//creating customer fetch api
+export const createCustomer = async(customerFormData: FormData)=>
+{
+  const response = await fetch(`${API_BASE_URL}/api/create-customer`, 
+  {
+    method:'POST',
+    credentials:'include',
+    body: customerFormData
+  });
+
+  if(!response.ok)
+  {
+    throw new Error('Error in creating the customer!');
+  }
+
+  return response.json();
+};

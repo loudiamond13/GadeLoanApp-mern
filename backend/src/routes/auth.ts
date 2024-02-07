@@ -1,6 +1,6 @@
 import express,{Request,Response} from 'express';
 import { check, validationResult } from 'express-validator';
-import User from "../models/user";
+import User from "../models/userModel";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import verifyToken from '../middleware/auth';
@@ -76,7 +76,7 @@ router.post('/login',
 //validate token end-point
 router.get('/validate-token', verifyToken,  (req:Request,res:Response)=>
 {
-  res.status(200).send({userID: req.userID});
+  res.status(200).send({userID: req.userId});
 } );
 
 

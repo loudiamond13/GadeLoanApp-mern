@@ -1,7 +1,7 @@
 
 import {check, validationResult} from 'express-validator';
 import express,{Request, Response} from 'express';
-import User from '../models/user';
+import User from '../models/userModel';
 import jwt from 'jsonwebtoken'
 // import debug from 'debug';
 // const debugUser = debug(`app:User`);

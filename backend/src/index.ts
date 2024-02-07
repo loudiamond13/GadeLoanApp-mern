@@ -1,25 +1,32 @@
 import express, {Request , Response} from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
-dotenv.config();
+import 'dotenv/config';
 import mongoose from 'mongoose';
 import authRoutes from 'cookie-parser';
 // import debug from 'debug';
+
+import cookieParser from 'cookie-parser';
+import path from 'path';
+import {v2 as cloudinary} from  'cloudinary';
 // import routes
 import {UserRoutes} from './routes/users';
 import {authenticationRoute} from './routes/auth';
-import cookieParser from 'cookie-parser';
-import path from 'path';
+import { createCustomerRouter } from './routes/customer';
 
 
+//connection to cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLODINARY_API_SECRET,
+});
 
 
-
-const port = process.env.PORT || 3000;
 
 //db connection
 mongoose.connect(process.env.MongoDB_CONNECTION_STRING as string);
-// .then(()=> console.log("DB", process.env.MongoDB_CONNECTION_STRING));
+
+const port = process.env.PORT || 3000;
 
 const app = express();
 app.use(cookieParser())
@@ -30,16 +37,20 @@ app.use(cors({
   credentials:true,
 }));
 
-app.use(express.static(path.join(__dirname, "../../frontend/dist")));
 
+
+app.use(express.static(path.join(__dirname, "../../frontend/dist")));
+//endpoints
 app.use("/api/auth", authenticationRoute)
 // /api/users/
 app.use("/api/users", UserRoutes)
+app.use('/api/create-customer', createCustomerRouter)
 
-// app.get(`/api/`, async (req: Request, res: Response) => {
-//   res.json({message: `back end.`});
-//   debugServer(`server running on port ${2025}`);
-// });
+
+app.get('*', (req:Request, res:Response)=> 
+{
+  res.sendFile(path.join(__dirname,"../../frontend/dist/index.html"));
+});
 
 app.listen(port, () => {
 console.log(`Server running on http://localhost:${port}`);
