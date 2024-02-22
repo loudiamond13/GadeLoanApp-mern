@@ -19,18 +19,14 @@ const EmailVerification =()=>
       try 
       {
         setValidURL(true);
-       const data = await apiClient.verifyEmail(user_id ||'',token ||'');
-       console.log(data)
-        console.log(validUrl)
+        await apiClient.verifyEmail(user_id ||'',token ||'');
+      
       } 
       catch (error) 
       {
         setValidURL(false);
-        console.log(error)
-        console.log('asdasd')
       }
     };
-    console.log(validUrl);
     verifyUserEmail();
   },[user_id, token]);
 
