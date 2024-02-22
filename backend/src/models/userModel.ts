@@ -15,7 +15,7 @@ export type  UserType = {
 };
 
 //user schema
-const userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema<UserType>({
   email:{type: String, required: true, unique: true},
   password: {type: String, required: true },
   lastName: {type: String, required: true},
