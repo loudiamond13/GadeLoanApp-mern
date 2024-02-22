@@ -30,7 +30,7 @@ const  User = mongoose.model<UserType>("User", userSchema);
 
 
 //encrypt the user password if changed/new password
-userSchema.pre('save', async function(next: Function) 
+userSchema.pre('save', async function(this, next: Function) 
 {
   if(this.isModified('password')){
   this.password = await bcrypt.hash(this.password, 8)
