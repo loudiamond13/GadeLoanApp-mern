@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
   emailVerified: {type: Boolean, default: false},
 });
 
+
+//user model
+const  User = mongoose.model<UserType>("User", userSchema);
+
+
 //encrypt the user password if changed/new password
 userSchema.pre('save', async function(next: Function) 
 {
@@ -33,7 +38,7 @@ userSchema.pre('save', async function(next: Function)
   next();
 });
 
-//user model
-const  User = mongoose.model<UserType>("User", userSchema);
+
+
 
 export default User;
