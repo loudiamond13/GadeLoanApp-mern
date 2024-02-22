@@ -1,5 +1,5 @@
 import mongoose,{Document} from 'mongoose';
-import bcrypt from 'bcryptjs';
+//import bcrypt from 'bcryptjs';
 
 //user type
 export interface  UserType extends Document  {
@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', async function(next: Function) 
 {
   if(this.isModified('password')){
-    this.password = await bcrypt.hash(this.password, 8)
+ //   this.password = await bcrypt.hash(this.password, 8)
   }
   next();
 });
