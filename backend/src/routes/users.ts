@@ -5,7 +5,7 @@ import User from '../models/userModel';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import verifyToken from '../middleware/auth';
-import Token from '../models/token';
+import Token from '../models/tokenModel';
 import sendEmail from '../utilities/sendEmail';
 import crypto from 'crypto';
 import multer from 'multer';
