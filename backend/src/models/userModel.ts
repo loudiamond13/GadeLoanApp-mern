@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose,{Document, Schema} from 'mongoose';
 import bcrypt from 'bcryptjs';
 //user type
 export interface  UserType extends Document  {
