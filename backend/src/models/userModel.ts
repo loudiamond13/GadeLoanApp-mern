@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 //user type
-export type UserType = {
+export interface  UserType extends Document  {
   _id:        string;
   email:      string;
   password:   string;
@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
 //encrypt the user password if changed/new password
 userSchema.pre('save', async function(next: Function) 
 {
-  if(this.isModified(`password`)){
+  if(this.isModified('password')){
     this.password = await bcrypt.hash(this.password, 8)
   }
   next();
