@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 //user type
-export interface  UserType extends Document  {
+export type  UserType = {
   _id:        string;
   email:      string;
   password:   string;
