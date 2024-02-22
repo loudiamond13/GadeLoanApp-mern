@@ -1,5 +1,5 @@
-import { ObjectId } from "mongodb";
-import mongoose, { Schema } from "mongoose";
+
+import mongoose from "mongoose";
 
 export type TokenType = 
 {
