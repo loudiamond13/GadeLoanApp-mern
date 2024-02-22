@@ -3,7 +3,10 @@ import { CustomerFormData } from "./ManageCustomerForm";
 
 const CustomerDetailsSection =()=>
 {
-  const {register, formState:{errors}} = useFormContext<CustomerFormData>();
+  const {register,watch, formState:{errors}} = useFormContext<CustomerFormData>();
+
+   const dob = watch('dob');
+  
 
   return(
     <div>
@@ -28,13 +31,15 @@ const CustomerDetailsSection =()=>
       </div>
       <div className="row">
         <label  className="form-label col-md-6">Date of Birth
-                <input type="date" className="form-control"
+                <input type="date" className="form-control" 
+                value={`${new Date(dob).getFullYear()}-${(new Date(dob).getMonth()+1).toString().padStart(2,'0')}-${new Date(dob).getDate() + 1 }`}
                 {...register(`dob`,{required: `Date of Birth is required.`})}/>
                 {
                   errors.dob && 
                   (<span className="text-danger">{errors.dob.message}</span>)
                 }
         </label>
+
         <label  className="form-label col-md-6">Gender
               <select className="form-select" {...register('sex',{required: 'Please select a Gender.'})}>
                 <option value="">---Select Gender---</option>

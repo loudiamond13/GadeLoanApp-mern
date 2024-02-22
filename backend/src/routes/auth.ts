@@ -3,7 +3,11 @@ import { check, validationResult } from 'express-validator';
 import User from "../models/userModel";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import verifyToken from '../middleware/auth';
+import  verifyToken  from '../middleware/auth';
+
+
+
+
 
 const router  = express.Router();
 
@@ -49,7 +53,8 @@ router.post('/login',
     }
 
     //create a jwt token for authentication 
-    const token = jwt.sign({userID: user.id}, process.env.JWT_SECRET_KEY as string,  {expiresIn: "1d"});
+    const token = jwt.sign({userID: user.id, userRole: user.role, userFname: user.firstName, userLname: user.lastName}, 
+                    process.env.JWT_SECRET_KEY as string,  {expiresIn: "1d"});
 
     //return the response with the token as http cookie
     res.cookie(`auth_token`, 
@@ -76,13 +81,14 @@ router.post('/login',
 //validate token end-point
 router.get('/validate-token', verifyToken,  (req:Request,res:Response)=>
 {
-  res.status(200).send({userID: req.userId});
+  res.status(200).send({userID: req.userId, userRole: req.userRole, userFname: req.userFname, userLname: req.userLname});
 } );
 
 
 
 router.post(`/logout`, (req: Request, res: Response)=> 
 {
+  
   res.cookie(`auth_token`, "", {
     expires: new Date(0),
   });

@@ -2,7 +2,6 @@ import express, {Request , Response} from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import mongoose from 'mongoose';
-import authRoutes from 'cookie-parser';
 // import debug from 'debug';
 
 import cookieParser from 'cookie-parser';
@@ -11,7 +10,9 @@ import {v2 as cloudinary} from  'cloudinary';
 // import routes
 import {UserRoutes} from './routes/users';
 import {authenticationRoute} from './routes/auth';
-import { createCustomerRouter } from './routes/customer';
+import { createCustomerRouter } from './routes/customers';
+import { transactionRouter } from './routes/transactions';
+
 
 
 //connection to cloudinary
@@ -29,7 +30,7 @@ mongoose.connect(process.env.MongoDB_CONNECTION_STRING as string);
 const port = process.env.PORT || 3000;
 
 const app = express();
-app.use(cookieParser())
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cors({
@@ -40,11 +41,13 @@ app.use(cors({
 
 
 app.use(express.static(path.join(__dirname, "../../frontend/dist")));
+
 //endpoints
-app.use("/api/auth", authenticationRoute)
+app.use("/api/auth", authenticationRoute);
 // /api/users/
-app.use("/api/users", UserRoutes)
-app.use('/api/create-customer', createCustomerRouter)
+app.use("/api/users", UserRoutes);
+app.use('/api/customers', createCustomerRouter);
+app.use('/api/transactions', transactionRouter);
 
 
 app.get('*', (req:Request, res:Response)=> 

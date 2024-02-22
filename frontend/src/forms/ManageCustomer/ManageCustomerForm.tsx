@@ -1,6 +1,8 @@
 import { FormProvider, useForm } from "react-hook-form";
 import CustomerDetailsSection from "./CustomerDetailsSection";
 import CustomerImageSection from "./CustomerImageSection";
+import { CustomerType } from "../../../../backend/src/models/customerModel";
+import { useEffect } from "react";
 
 export type CustomerFormData = 
 {
@@ -17,28 +19,42 @@ export type CustomerFormData =
   sex: string;
   branch: string;
   imageFile: File[];
+  imageUrl:string[];
   isActive:boolean;
 };
 
 type Props = 
 {
-  onCreate:(customerFormData:FormData) => void
-  isLoading: boolean
+  customer?: CustomerType;
+  onCreate:(customerFormData:FormData) => void;
+  isLoading: boolean;
 }
 
 
-const ManageCustomerForm =({onCreate,isLoading}: Props) =>
+
+const ManageCustomerForm =({onCreate,isLoading,customer}: Props) =>
 {
   const  formMethods = useForm<CustomerFormData>();
-  const {handleSubmit} = formMethods;
+  const {handleSubmit,reset} = formMethods;
+
+  useEffect(()=>
+{
+  reset(customer);
+},[customer,reset]);
+
 
   const onSubmit = handleSubmit((formDataJson: CustomerFormData) => 
   {
-    console.log(formDataJson)
-    //create new form data object and call api
+   
+    
     const formData = new FormData();
+
+    if(customer)
+    {
+      formData.append("customer_id", customer._id);
+    }
     //convert form data into json
-    formData.append(`firstName`, formDataJson.firstName)
+    formData.append(`firstName`, formDataJson.firstName);
     formData.append("lastName", formDataJson.lastName);
     formData.append('email', formDataJson.email);
     formData.append('streetAddress', formDataJson.streetAddress);
@@ -50,15 +66,21 @@ const ManageCustomerForm =({onCreate,isLoading}: Props) =>
     formData.append('sex', formDataJson.sex);
     formData.append('branch', formDataJson.branch);
     formData.append('isActive', formDataJson.isActive.toString());
+
+    
+    if(formDataJson.imageUrl)
+    {
+      formDataJson.imageUrl.forEach((url, index) =>
+      {
+        formData.append(`imageUrl[${index}]`, url);
+      });
+    }
+    
     formData.append(`imageFile`, formDataJson.imageFile[0]);
-    // Array.from(formDataJson.imageFile).forEach((imageFile)=>
-    // {
-    //   formData.append(`imageFile`,imageFile);
-    // });
 
     onCreate(formData);
-    console.log(formData);
   });
+  
   return (
     <FormProvider {...formMethods}>
       <form onSubmit={onSubmit}>

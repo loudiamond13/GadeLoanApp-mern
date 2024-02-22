@@ -1,6 +1,7 @@
 
 import { NextFunction, Request,Response } from "express-serve-static-core";
 import jwt, { JwtPayload } from  'jsonwebtoken';
+import { UserRole } from "../utilities/constants";
 
 
 //add the user ID to the request
@@ -11,6 +12,9 @@ declare global
     interface Request
     {
       userId: string;
+      userRole:string;
+      userFname:string;
+      userLname:string;
     }
   }
 }
@@ -34,6 +38,9 @@ const verifyToken =(req: Request,res: Response, next: NextFunction )=>
     //verify the token using jsonwebtoken library
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY as string);
     req.userId = (decoded as JwtPayload).userID;
+    req.userRole = (decoded as JwtPayload).userRole;
+    req.userFname = (decoded as JwtPayload).userFname;
+    req.userLname= (decoded as JwtPayload).userLname;
     next();
   }
   catch(error)
@@ -42,5 +49,42 @@ const verifyToken =(req: Request,res: Response, next: NextFunction )=>
   }
 
 };
+
+export const isEmployee = (req:Request, res:Response,next:NextFunction)=>
+{
+  
+  verifyToken(req, res, () =>
+  {
+    if(req.userRole === UserRole.EMPLOYEE || req.userRole === UserRole.ADMIN)
+    {
+      next();
+    }
+    else
+    {
+      console.log('Access denied');
+      return res.status(403).send({message:'You are not authorized!'});
+    }
+  });
+};
+
+export const isAdmin = (req: Request, res:Response, next: NextFunction) => 
+{
+  verifyToken(req, res, () =>
+  {
+    if(req.userRole !== UserRole.ADMIN)
+    {
+      console.log('Access denied');
+      return res.status(403).send({message:'You are not authorized!'});
+    }
+    else
+    {
+      next();
+    }
+  });
+}
+
+
+
+
 
 export  default verifyToken;

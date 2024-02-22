@@ -7,6 +7,8 @@ export type UserType = {
   password:   string;
   lastName:   string;
   firstName:  string;
+  role: string;
+  emailVerified: boolean;
 };
 
 //user schema
@@ -14,7 +16,9 @@ const userSchema = new mongoose.Schema({
   email:{type: String, required: true, unique: true},
   password: {type: String, required: true },
   lastName: {type: String, required: true},
-  firstName: {type: String, required: true}
+  firstName: {type: String, required: true},
+  role: {type: String, enum: ['admin','employee', 'user'], default: 'user'}, //by default a user is just a regular user
+  emailVerified: {type: Boolean, default: false},
 });
 
 //encrypt the user password if changed/new password

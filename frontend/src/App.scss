@@ -12,7 +12,11 @@ $theme-colors: (
     "danger":     #fd1e00,
 );
 
-
+.customerImage
+{
+    height: 200px !important;
+    width: 200px !important;
+}
 
 @import "../node_modules/bootstrap/scss/bootstrap.scss";
 

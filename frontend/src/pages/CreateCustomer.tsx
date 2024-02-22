@@ -15,7 +15,8 @@ const CreateCustomer = () =>
       },
       onError: ()=>
       {
-        showToast({message:'Error creating customer. Email might be in used.', type:'error'})
+        
+        showToast({message: `Email might be in used/You're not authorized.` , type:'error'})
       }
     });
 

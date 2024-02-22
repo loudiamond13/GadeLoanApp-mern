@@ -16,24 +16,11 @@ export type CustomerType =
   phoneNumber: string;
   sex: string;
   branch: string;
-  // payments:  PaymentType[];
-  // loans: LoanType[];
-  imageFile: string[];
+  imageUrl: string[];
   lastUpdated: Date;
   isActive: boolean;
 };
 
-// export type PaymentType = 
-// {
-//   date: Date; 
-//   amount: number;
-// };
-
-// export type LoanType =
-// {
-//   date:Date;
-//   amount:number;
-// };
 
 //schema
 const customerSchema = new mongoose.Schema<CustomerType>
@@ -51,7 +38,7 @@ const customerSchema = new mongoose.Schema<CustomerType>
   sex: {type:String, required:true},
   branch: {type:String, required:true},
 
-  imageFile: [{type:String}],
+  imageUrl: [{type:String}],
   lastUpdated: {type:Date, required:true},
   isActive: {type: Boolean, required: true}
 });

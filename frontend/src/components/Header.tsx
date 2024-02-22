@@ -1,10 +1,16 @@
 import { Link } from "react-router-dom";
 import { useAppContext } from "../contexts/AppContext";
-import LogOutBtn from "./SignOutBtn";
+import {UserRole} from '../../../backend/src/utilities/constants.ts';
+import LogOutBtn from "./LogOutBtn.tsx";
 
 
 const Header = () => {
-  const {isLoggedIn} = useAppContext();
+
+  const {isLoggedIn, userRole, user_id, userFirstName, userLastName} = useAppContext();
+
+  
+
+
   return(
     <nav className="navbar navbar-dark navbar-expand-lg bg-dark">
     <div className="container">
@@ -19,42 +25,55 @@ const Header = () => {
             <Link to="/" className="text-light nav-link" >Home</Link>
           </li>
           {
-            isLoggedIn ? 
+            userRole === UserRole.EMPLOYEE || userRole === UserRole.ADMIN && isLoggedIn? 
             (<>
               <li className="nav-item">
-               <a className="me-2  text-light nav-link"  href="/sign-in ">Creditor List</a>
+              <Link to='/customers' className="me-2  text-light nav-link">Customers</Link>
               </li>
-              <li className="nav-item">
+              {/* <li className="nav-item">
                <Link to='create-customer' className="me-2  text-light nav-link">Create Customer</Link>
-              </li>
+              </li> */}
             </>)
-            :(<><span></span></>)
+            :null
+          }
+          {
+            userRole === UserRole.ADMIN && isLoggedIn?
+            (<>
+            <li className="nav-item">
+               <Link className="me-2  text-light nav-link"  to="/register ">Create Employee</Link>
+            </li>
+            </>):null
           }
         </ul>
-        {isLoggedIn ? 
+        {!isLoggedIn ? 
         (
-        <>
-        <span className="navbar-item">
-          <LogOutBtn/>
-        </span>
-        </>
-        )
-        :
-        (
-       <>
-       <span className="navbar-item ">
+          <>
+          <span className="navbar-item ">
+          
+             <Link className="me-5 my-3 text-light nav-link " to="/sign-in">Sign In</Link>
+           
+          </span>
+           <span className="navbar-item ">
+           
+             <Link className="me-5 my-3  text-light nav-link" to="/register">Register</Link>
        
-          <Link className="me-5 my-3 text-light nav-link " to="/sign-in">Sign In</Link>
-        
-       </span>
-        <span className="navbar-item ">
-        
-          <Link className="me-5 my-3  text-light nav-link" to="/register">Register</Link>
-    
-        </span>
-       </>
-        )}
+           </span>
+          </>
+        ):(
+        <>
+          <span className="navbar-item">
+            <Link className="me-5 my-3  text-light nav-link" to={`/user-profile/${user_id}`}>
+             {`  Hello, ${userRole} ${userFirstName} ${userLastName}`}
+            </Link>  
+          </span>
+          <span className="navbar-item">
+            <LogOutBtn/>
+          </span>
+        </>
+        )};
+      
       </div>
+      
     </div>
   </nav>
   );
