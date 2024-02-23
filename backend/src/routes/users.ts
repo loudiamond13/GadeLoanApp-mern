@@ -347,10 +347,12 @@ router.post('/forgot-password/:user_id', upload.none(), async(req:Request, res: 
       return res.status(400).json({ message : "Invalid Link/Reset Password Link Expired!" });
     }
 
-    token.deleteOne();
+    //delete the token
+    await token.deleteOne();
 
+    //change the password
     user.password = password;
-    user.save();
+    user.save();//save the userchanges
 
     return res.status(200).json({message: 'Password reset successfully.'});
   } 
