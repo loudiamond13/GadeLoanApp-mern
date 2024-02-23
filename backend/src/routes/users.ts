@@ -48,9 +48,15 @@ router.post(`/register`,[
     await user.save();
 
     //generate token for verification of account
-    const emailToken = await new Token({user_id: user._id ,token : crypto.randomBytes(32).toString("hex")}).save();
-    const url = `${process.env.FRONTEND_URL || process.env.WEB}/users/${user._id}/verify/${emailToken.token}`;
-    await sendEmail(user.email, 'Verify Email', url);
+    const emailToken = await new Token({user_id: user._id , emailToken : crypto.randomBytes(32).toString("hex")}).save();
+    const url = `${process.env.FRONTEND_URL || process.env.WEB}/users/${user._id}/verify/${emailToken.emailToken}`;
+    await sendEmail(user.email, 'Verify Email', 
+        `<p>Hello ${user.firstName},</p>
+        <br/>
+        <p>Click <a href='${url}'>here</a> to verify your email. If you didn't make this request just ignore this email.</p>
+        </br>
+        <p>Thank you,</p>
+        <p>Gade Loan App</p>`);
 
     //process the jason web token
     const token = jwt.sign({userID: user._id, userRole: user.role}, 
@@ -170,7 +176,7 @@ router.post('/:user_id/verify/:token', async (req:Request,res:Response)=>
 {
   try {
     //find the token using the passed in token from params
-    const token = await Token.findOne({user_id: req.params.user_id, token: req.params.token});
+    const token = await Token.findOne({user_id: req.params.user_id, emailToken: req.params.token});
 
     //check if there is token
     if(!token)
@@ -213,20 +219,37 @@ router.post('/resend-verification/:user_id',verifyToken ,async (req:Request, res
 
     if(!user.emailVerified)
     {
-      let token = await Token.findOne({user_id: req.params.user_id});
+      let token = await Token.findOne({user_id: user._id});
+
+      //check if user has already a email token for verification
       if(!token)
       {
-        token = await new Token({user_id: user._id ,token : crypto.randomBytes(32).toString("hex")}).save();
-        const url = `${process.env.FRONTEND_URL || process.env.WEB}/users/${user._id}/verify/${token.token}`;
-        await sendEmail(user.email, 'Verify Email', url);
+        token = await new Token({user_id: user._id ,emailToken : crypto.randomBytes(32).toString("hex")}).save();
+        const url = `${process.env.FRONTEND_URL || process.env.WEB}/users/${user._id}/verify/${token.emailToken}`;
+        await sendEmail(user.email, 'Verify Email', 
+        `<p>Hello ${user.firstName},</p>
+        <br/>
+        <p>Click <a href='${url}'>here</a> to verify your email. If you didn't make this request just ignore this email.</p>
+        </br>
+        <p>Thank you,</p>
+        <p>Gade Loan App</p>`);
+
         return res.status(200).json({message: 'Email Verification Sent!'});
       }
+      //if user has email token for email verification, make a new one and resend email verification link
       else
       {
-        token.token=crypto.randomBytes(32).toString("hex");
+        token.emailToken=crypto.randomBytes(32).toString("hex");
         token.save();
-        const url = `${process.env.FRONTEND_URL || ""}/users/${user._id}/verify/${token.token}`;
-        await sendEmail(user.email, 'Verify Email', url);
+        const url = `${process.env.FRONTEND_URL || process.env.WEB}/users/${user._id}/verify/${token.emailToken}`;
+        await sendEmail(user.email, 'Verify Email', 
+        `<p>Hello ${user.firstName},</p>
+        <br/>
+        <p>Click <a href='${url}'>here</a> to verify your email. If you didn't make this request just ignore this email.</p>
+        </br>
+        <p>Thank you,</p>
+        <p>Gade Loan App</p>`);
+
         return res.status(200).json({message: 'Email Verification Sent!'});
       }
     }
@@ -239,5 +262,104 @@ router.post('/resend-verification/:user_id',verifyToken ,async (req:Request, res
     return res.status(500).json({message:'Server Error'});
   }
 });
+
+//send link for forgot password
+router.post('/forgot-password/',
+check('email', "Email is Required").isEmail()
+,upload.none() ,async (req:Request,res:Response) =>
+{
+  try {
+
+    const {email} = req.body; 
+
+    //find user in the user db using user email
+    const user = await User.findOne({email: email});
+
+    //check if user exists
+    if(!user) 
+    {
+      return res.status(404).json({messsage: 'Email do not exist!'});
+    }
+    else // if user exists
+    {
+      let token = await Token.findOne({user_id: user._id});
+
+      //check if user already has a token, if not create token
+      if(!token)
+      {
+        //create new token and save it to the database with expiration time of 1 hour
+        token = await new Token({user_id: user._id, passwordToken:crypto.randomBytes(32).toString("hex")}).save();
+        //forgot pw url
+        const url = `${process.env.FRONTEND_URL || process.env.WEB}/forgot-password/${user._id}/verify/${token.passwordToken}`;
+        await sendEmail(user.email, 'Reset Password', 
+        `<p>Hello ${user.firstName},</p>
+        <br/>
+        <p>Click <a href='${url}'>here</a> to reset your password. If you didn't make this request, please change your password ASAP.</p>
+        </br>
+        <p>Thank you,</p>
+        <p>Gade Loan App</p>`);
+
+        return res.status(200).json({message: 'Check your email to reset password!'});
+      }
+      else
+      {
+        token.passwordToken=crypto.randomBytes(32).toString("hex");
+        token.save();
+        const url = `${process.env.FRONTEND_URL || process.env.WEB}/forgot-password/${user._id}/verify/${token.passwordToken}`;
+        await sendEmail(user.email, 'Reset Password', 
+        `<p>Hello ${user.firstName},</p>
+        <br/>
+        <p>Click <a href='${url}'>here</a> to reset your password. If you didn't make this request, please change your password ASAP.</p>
+        </br>
+        <p>Thank you,</p>
+        <p>Gade Loan App</p>`);
+
+        return res.status(200).json({message: 'Check your email to reset password!'});
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({message:'Server Error'});
+  }
+});
+
+//process forgot password
+router.post('/forgot-password/:user_id', upload.none(), async(req:Request, res: Response) =>
+{
+  try 
+  {
+    const {user_id, passwordToken, password} = req.body;
+    
+    //find the token using the passed in token from params
+    const token = await Token.findOne({user_id: user_id, passwordToken: passwordToken});
+
+    //check if there is token
+    if(!token)
+    {
+      return res.status(400).json({message: 'Invalid Link/Reset Password Link Expired!'});
+    }
+    
+    //get the user from db using the passed in id
+    const user = await User.findOne({_id: req.params.user_id});
+    //check if there is user 
+    if (!user)
+    {
+      return res.status(400).json({ message : "Invalid Link/Reset Password Link Expired!" });
+    }
+
+    token.deleteOne();
+
+    user.password = password;
+    user.save();
+
+    return res.status(200).json({message: 'Password reset successfully.'});
+  } 
+  catch (error) {
+    console.log(error)
+    return res.status(500).json({message:'Server Error'});
+  }
+});
+
+
 
 export {router as UserRoutes};

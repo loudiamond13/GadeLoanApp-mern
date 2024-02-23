@@ -14,6 +14,8 @@ import CreateCustomerTransaction from "./pages/CreateCustomerTransaction";
 import EditCustomer from './pages/EditCustomer';
 import EditUserProfile from "./pages/EditUserProfile";
 import EmailVerification from "./components/EmailVerification";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 
 function App() {
@@ -30,8 +32,7 @@ function App() {
         </Layout>
         }/>
 
-        <Route path="/users/:user_id/verify/:token"
-          element={<Layout><EmailVerification/></Layout>}/>
+        
         
         <Route path='/search'
         element={<Layout>
@@ -44,6 +45,16 @@ function App() {
 
         <Route path="/sign-in" 
         element={<Layout><SignIn/></Layout>}/>
+
+        <Route path="/forgot-password"
+        element={<Layout><ForgotPassword/></Layout>}
+        />
+
+        <Route path="/forgot-password/:user_id/verify/:token"
+        element={<Layout><ResetPassword/></Layout>}/>
+
+        <Route path="/users/:user_id/verify/:token"
+        element={<Layout><EmailVerification/></Layout>}/>
 
         {isLoggedIn?
         (

@@ -155,6 +155,44 @@ export const verifyEmail =async(user_id:string, token:string)=>
 
 }
 
+//forgot password
+//for sending link 
+export const forgotPassword = async(forgotPasswordData:FormData) =>
+{
+  const response = await fetch(`${API_BASE_URL}/api/users/forgot-password`,
+  {
+    method:"POST",
+    credentials:'include',
+    body: forgotPasswordData,
+  });
+
+  if (!response.ok)  
+  {
+    const responseBody = await response.json();
+    throw new Error(responseBody.message || 'Email do not exist.');
+  }
+
+  return response.json();
+}
+
+//resetting password
+export const resetPassword = async(resetPasswordData:FormData) =>
+{
+  const response = await fetch(`${API_BASE_URL}/api/users/forgot-password/${resetPasswordData.get('user_id')}`,
+  {
+    body: resetPasswordData,
+    method: 'POST'
+  });
+
+  if (!response.ok)  
+  {
+    const responseBody = await response.json();
+    throw new Error(responseBody.message || 'Server error!');
+  }
+
+  return response.json();
+};
+
 //creating customer fetch api
 export const createCustomer = async(customerFormData: FormData)=> 
 {

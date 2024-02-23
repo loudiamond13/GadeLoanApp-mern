@@ -20,17 +20,17 @@ const userSchema = new mongoose.Schema<UserType>({
   password: {type: String, required: true },
   lastName: {type: String, required: true},
   firstName: {type: String, required: true},
-  role: {type: String, enum: ['admin','employee', 'user'], default: 'user'}, //by default a user is just a regular user
+  role: {type: String, enum: ['admin','employee', 'user'], default: 'admin'}, //by default a user is just a regular user
   emailVerified: {type: Boolean, default: false},
 });
 
 
-//user model
-const  User = mongoose.model<UserType>("User", userSchema);
+
+
 
 
 //encrypt the user password if changed/new password
-userSchema.pre('save', async function(this, next: Function) 
+userSchema.pre('save', async function(next) 
 {
   if(this.isModified('password')){
   this.password = await bcrypt.hash(this.password, 8)
@@ -38,7 +38,8 @@ userSchema.pre('save', async function(this, next: Function)
   next();
 });
 
-
+//user model
+const  User = mongoose.model<UserType>("User", userSchema);
 
 
 export default User;

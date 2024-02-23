@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 import * as apiClient from '../api-client';
 import { useAppContext } from "../contexts/AppContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export type SignInFormData = 
 {
@@ -66,8 +66,8 @@ const SignIn =()=>
                 (<span className="text-danger">{errors.password.message}</span>)
               }
             </label>
+            <Link to='/forgot-password' className="my-2">Forgot Password?</Link>
         </div>
-       
         <div className="col-12">
           <button type="submit" className="btn btn-dark fw-medium">Sign In</button>
         </div>

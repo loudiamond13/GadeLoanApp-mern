@@ -46,7 +46,6 @@ const ManageCustomerForm =({onCreate,isLoading,customer}: Props) =>
   const onSubmit = handleSubmit((formDataJson: CustomerFormData) => 
   {
    
-    
     const formData = new FormData();
 
     if(customer)
