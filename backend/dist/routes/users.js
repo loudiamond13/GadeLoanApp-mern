@@ -54,7 +54,7 @@ router.post(`/register`, [
         yield user.save();
         //generate token for verification of account
         const emailToken = yield new tokenModel_1.default({ user_id: user._id, token: crypto_1.default.randomBytes(32).toString("hex") }).save();
-        const url = `${process.env.FRONTEND_URL || ""}/users/${user._id}/verify/${emailToken.token}`;
+        const url = `${process.env.FRONTEND_URL || "https://gadeloanappmern.onrender.com"}/users/${user._id}/verify/${emailToken.token}`;
         yield (0, sendEmail_1.default)(user.email, 'Verify Email', url);
         //process the jason web token
         const token = jsonwebtoken_1.default.sign({ userID: user._id, userRole: user.role }, process.env.JWT_SECRET_KEY, { expiresIn: '1d' }); //token expiration
@@ -172,7 +172,7 @@ router.post('/resend-verification/:user_id', auth_1.default, (req, res) => __awa
             let token = yield tokenModel_1.default.findOne({ user_id: req.params.user_id });
             if (!token) {
                 token = yield new tokenModel_1.default({ user_id: user._id, token: crypto_1.default.randomBytes(32).toString("hex") }).save();
-                const url = `${process.env.FRONTEND_URL || ""}/users/${user._id}/verify/${token.token}`;
+                const url = `${"https://gadeloanappmern.onrender.com"}/users/${user._id}/verify/${token.token}`;
                 yield (0, sendEmail_1.default)(user.email, 'Verify Email', url);
                 return res.status(200).json({ message: 'Email Verification Sent!' });
             }
