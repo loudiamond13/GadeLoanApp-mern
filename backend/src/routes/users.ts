@@ -217,7 +217,7 @@ router.post('/resend-verification/:user_id',verifyToken ,async (req:Request, res
       if(!token)
       {
         token = await new Token({user_id: user._id ,token : crypto.randomBytes(32).toString("hex")}).save();
-        const url = `${process.env.FRONTEND_URL || "https://gadeloanappmern.onrender.com"}/users/${user._id}/verify/${token.token}`;
+        const url = `${"https://gadeloanappmern.onrender.com"}/users/${user._id}/verify/${token.token}`;
         await sendEmail(user.email, 'Verify Email', url);
         return res.status(200).json({message: 'Email Verification Sent!'});
       }
