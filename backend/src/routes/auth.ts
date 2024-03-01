@@ -27,14 +27,14 @@ router.post('/login',
     //if there is error, return the error
     return res.status(400).json({message: errors.array()})
   }
-
+ 
   //request the email and password
   const {email,password} = req.body;
 
   try
   {
     //find the  user by the provided email
-    const user = await User.findOne({email});
+    const user = await User.findOne({email: email.toLowerCase()});
 
     //if there is no user  with such email - send error message
     if(!user)
@@ -51,6 +51,13 @@ router.post('/login',
     {
       return res.status(400).json({message: 'Invalid email/password.'});
     }
+
+    //check if user is locked
+    if(user.isLocked)
+    {
+      return res.status(423).json({message:'Your account is locked. Please contact an admin.'});
+    }
+
 
     //create a jwt token for authentication 
     const token = jwt.sign({userID: user.id, userRole: user.role, userFname: user.firstName, userLname: user.lastName}, 
@@ -82,14 +89,14 @@ router.post('/login',
 router.get('/validate-token', verifyToken,  (req:Request,res:Response)=>
 {
   res.status(200).send({userID: req.userId, userRole: req.userRole, userFname: req.userFname, userLname: req.userLname});
-} );
+});
 
 
 
 router.post(`/logout`, (req: Request, res: Response)=> 
 {
   
-  res.cookie(`auth_token`, "", {
+  res.cookie(`auth_token`,"", {
     expires: new Date(0),
   });
   res.send();

@@ -55,7 +55,7 @@ const ManageCustomerForm =({onCreate,isLoading,customer}: Props) =>
     //convert form data into json
     formData.append(`firstName`, formDataJson.firstName);
     formData.append("lastName", formDataJson.lastName);
-    formData.append('email', formDataJson.email);
+    formData.append('email', formDataJson.email.toLowerCase());
     formData.append('streetAddress', formDataJson.streetAddress);
     formData.append('barangay', formDataJson.barangay);
     formData.append('cityMunicipality', formDataJson.cityMunicipality);

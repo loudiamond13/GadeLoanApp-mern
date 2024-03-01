@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+
 export type CustomerType = 
 {
   _id: string;

@@ -53,7 +53,7 @@ const CustomerDetailsSection =()=>
         </label>
       </div>
       <div className="row">
-      <label  className="form-label col-md-6">Email
+      <label  className="form-label col-md-6">Email (Initial Password for the customer is set as "123456")
                 <input type="email" className="form-control"
                 {...register(`email`,{required: `Email is required.`})}/>
                 {

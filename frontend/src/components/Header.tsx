@@ -40,7 +40,7 @@ const Header = () => {
             userRole === UserRole.ADMIN && isLoggedIn?
             (<>
             <li className="nav-item">
-               <Link className="me-2  text-light nav-link"  to="/register ">Create Employee</Link>
+               <Link className="me-2  text-light nav-link"  to="/employees">Employees</Link>
             </li>
             </>):null
           }

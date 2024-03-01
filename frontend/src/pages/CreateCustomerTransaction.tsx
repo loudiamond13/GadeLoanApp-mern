@@ -2,14 +2,14 @@
 import { useAppContext } from "../contexts/AppContext";
 import ManageTransactionForm from "../forms/ManageTransaction/ManageTransactionForm";
 import * as apiClient from '../api-client'
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 
 
 const CreateCustomerTransaction =()=>
 { 
   const {showToast} = useAppContext();
-
+  const queryClient = useQueryClient();
   const{customer_id} = useParams();
 
   const {data:transaction} = useQuery('fetchCustomerTransactions', ()=> apiClient.fetchCustomerTransactions(customer_id || ''),
@@ -20,11 +20,12 @@ const CreateCustomerTransaction =()=>
   const {mutate} = useMutation(apiClient.updateCustomerTransaction, 
     {
       onSuccess:() => {
-        showToast({message: "Updated Trans", type:'success'});
-        window.location.reload();
+        queryClient.invalidateQueries('fetchCustomerTransactions');
+        showToast({message: "Transaction submitted.", type:'success'});
+        
       },
       onError:() => {
-        showToast({message:'error trans', type: 'error'});
+        showToast({message:'Error on processing transaction', type: 'error'});
       }
     });
 

@@ -9,9 +9,7 @@ type Props = {user_id: string;}
 const ResendVerificationBtn = ({user_id}:Props) => 
 {
   const {showToast} = useAppContext();
-
-  console.log('BUTOON RESEND', user_id)
-
+  
   const mutation = useMutation(()=> apiClient.resendEmailVerification(user_id),
   {
     onSuccess: async()=>

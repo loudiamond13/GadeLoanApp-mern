@@ -22,12 +22,13 @@ export const register = async (formData:RegisterFormData) =>
     body: JSON.stringify(formData),
   });
 
-  const responseBODY = await response.json();
   //if fetch is not ok,  throw error with status and message
   if(!response.ok) 
   {
+    const responseBODY = await response.json();
     throw new Error(responseBODY.message);
   }
+
 }
 
 //sign in from data
@@ -116,6 +117,84 @@ export const logOut = async () =>
     throw new Error("ERROR ON SIGNING OUT!");
   }
 
+};
+
+
+//create/add employee
+export const createEmployee = async(formData: RegisterFormData)=>
+{
+   //fetch
+   const response = await fetch(`${API_BASE_URL}/api/users/create-employee`, 
+   {
+     method : 'POST',
+     credentials: 'include',// tells the browser  to include cookies in requests made to this URL
+     headers: 
+     {
+       'Content-Type': 'application/json' // tells the backend  that we are sending json format // content type
+     },
+     body: JSON.stringify(formData),
+   });
+ 
+   //if fetch is not ok,  throw error with status and message
+   if(!response.ok) 
+   {
+     const responseBODY = await response.json();
+     throw new Error(responseBODY.message);
+   }
+}
+
+//gets all employee
+export const fetchEmployees= async():Promise<UserType[]> => 
+{
+  const response = await fetch(`${API_BASE_URL}/api/users/employees`,
+  {
+    method:"GET",
+    credentials: 'include'
+  });
+
+  if(!response.ok)
+  {
+    const responseBODY = await response.json()
+    throw new Error(responseBODY.message || 'Server error!');
+  }
+
+  return response.json()
+}
+
+//deletes an employee by id
+export const deleteUserByID = async (id:string) =>
+{
+  const response = await fetch(`${API_BASE_URL}/api/users/${id}`,
+  {
+     method:'DELETE',
+     credentials: "include"
+  });
+
+  if (!response.ok)
+  {
+    const responseBODY = await response.json()
+    throw new Error(responseBODY.message || 'Server error!');
+  }
+}
+
+
+//locking and unlocking user
+export const lockUserByID = async (id:string, isLocked:boolean) => {
+  const response = await fetch(`${API_BASE_URL}/api/users/lock-unlock/${id}`, {
+    method: 'PUT',
+    headers: 
+    {
+      'Content-Type': 'application/json'
+    },
+    //set action
+    //if  it's locked set the action to be unlocked
+    body: JSON.stringify({ action: isLocked ? 'unlock' : 'lock' })
+  });
+
+  if (!response.ok) {
+    const responseBODY = await response.json();
+    throw new Error(responseBODY.message || 'Server error!');
+  }
 };
 
 //resend email verification
@@ -213,6 +292,8 @@ export const createCustomer = async(customerFormData: FormData)=>
 };
 
 
+
+
 //fetching customers client api
 export const fetchCustomers = async(): Promise<CustomerType[]>=>
 {
@@ -297,3 +378,7 @@ export const updateCustomerTransaction = async(transactionFormData: FormData) =>
     return response.json();
  
 };
+
+
+
+

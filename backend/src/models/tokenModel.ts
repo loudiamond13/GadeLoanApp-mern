@@ -11,10 +11,10 @@ export type TokenType =
 }
 
 const tokenSchema = new mongoose.Schema<TokenType>({
-  user_id: {type: String, required: true }, // reference to the User model
+  user_id: {type: String, required: true }, 
   emailToken:{type: String},
   passwordToken: {type:String},
-  createdAt: {type: Date,  default: Date.now(), expires: 3600} //1d
+  createdAt: {type: Date,  default: Date.now(), expires: 86400} //1d/24hrs
 });
 
 const Token = mongoose.model<TokenType>("Token", tokenSchema);

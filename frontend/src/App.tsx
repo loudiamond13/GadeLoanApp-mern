@@ -1,6 +1,4 @@
-//  import { useState } from 'react'
-//  import reactLogo from './assets/react.svg'
-//  import viteLogo from '/vite.svg'
+
 import{BrowserRouter as Router,Route,Routes} from "react-router-dom";
 import './App.scss';
 import Layout from "./layouts/Layout";
@@ -16,6 +14,10 @@ import EditUserProfile from "./pages/EditUserProfile";
 import EmailVerification from "./components/EmailVerification";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import EditCustomerTransaction from "./pages/EditCustomerTransaction";
+import Employees from "./pages/Employees";
+import CreateEmployee from "./pages/CreateEmployee";
+
 
 
 function App() {
@@ -29,14 +31,6 @@ function App() {
         element={
         <Layout>
           <p>Home Page</p>
-        </Layout>
-        }/>
-
-        
-        
-        <Route path='/search'
-        element={<Layout>
-          <p>Search Page</p>
         </Layout>
         }/>
 
@@ -59,6 +53,7 @@ function App() {
         {isLoggedIn?
         (
           <>
+            
             <Route path="/user-profile/:user_id" 
               element={<Layout><EditUserProfile/></Layout>}/>
             <Route path="/resend-verification/:user_id"/>
@@ -67,6 +62,8 @@ function App() {
 
         {userRole === UserRole.EMPLOYEE || userRole === UserRole.ADMIN ?(
         <>
+        <Route path="/edit-transactions/:customer_id"
+          element={<Layout><EditCustomerTransaction/></Layout>} />
          <Route path="/customers" 
           element={<Layout><Customers/></Layout>}/>
 
@@ -80,6 +77,18 @@ function App() {
           element={<Layout><EditCustomer/></Layout>}/>
         
         </>) : null}
+        {userRole === UserRole.ADMIN?  (
+        <>
+          <Route path="/employees" 
+          element={<Layout><Employees/></Layout>}/>
+            
+          <Route path="/add-employee" 
+          element={<Layout><CreateEmployee/></Layout>}/>
+        </>
+        ):null}
+
+
+
         {/* <Route 
         path='*' 
         element= {<Navigate to="/" />}/> */}

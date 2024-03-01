@@ -40,7 +40,7 @@ const ManageResetPasswordForm =({onReset}: Props)=>
       <form onSubmit={onSubmit}>
         <div className="row">
           <h1>Reset Password</h1>
-          <label className="form-label col-md-6">Password
+          <label className="form-label col-md-6">New Password
             <input type="password" className="form-control" 
             {...register("password", {required: `Password is required.`,
             minLength:{
@@ -51,7 +51,7 @@ const ManageResetPasswordForm =({onReset}: Props)=>
                 <span className="text-danger">{errors.password.message}</span>
             )}
           </label>
-          <label className="form-label col-md-6">Confirm Password
+          <label className="form-label col-md-6">Confirm New Password
             <input type="password" className="form-control" 
             {...register("confirmPassword",{
               validate:(value) => {

@@ -16,7 +16,6 @@ const Layout =({children}:Props)=>{
       <div className=''>
       <Footer/>
       </div>
-     
     </div>
   );
 

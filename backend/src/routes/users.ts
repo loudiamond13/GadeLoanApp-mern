@@ -4,12 +4,13 @@ import express,{Request, Response} from 'express';
 import User from '../models/userModel';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import verifyToken from '../middleware/auth';
+import verifyToken, { isAdmin } from '../middleware/auth';
 import Token from '../models/tokenModel';
 import sendEmail from '../utilities/sendEmail';
 import crypto from 'crypto';
 import multer from 'multer';
 import { json } from 'body-parser';
+import { UserRole } from '../utilities/constants';
 const upload = multer();
 
 const router = express.Router();
@@ -33,7 +34,7 @@ router.post(`/register`,[
   try
   {
     //find if the user email exists
-    let user  = await User.findOne({email: req.body.email});
+    let user  = await User.findOne({email: req.body.email.toLowerCase()});
 
     //if user email exists
     if(user)
@@ -56,20 +57,22 @@ router.post(`/register`,[
         <p>Click <a href='${url}'>here</a> to verify your email. If you didn't make this request just ignore this email.</p>
         </br>
         <p>Thank you,</p>
-        <p>Gade Loan App</p>`);
+        <p>Gade Loan App</p>`); 
+    
 
-    //process the jason web token
+    //process the  token
     const token = jwt.sign({userID: user._id, userRole: user.role}, 
       process.env.JWT_SECRET_KEY as string, 
       {expiresIn: '1d'}); //token expiration
 
+    //send/set cookie
     res.cookie(`auth_token`,  
     token,  {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     maxAge: 86400000});
       
-    return res.status(200).send({message: `User ${user.email} has been successfully registered. Verify`});
+    return res.status(200).send({message: `User ${user.email} has been successfully registered.`});
       
   }
   //if error
@@ -81,9 +84,146 @@ router.post(`/register`,[
   }
 });
 
+//registering/adding employee 
+router.post(`/create-employee`,[
+  // user input validator
+  check('firstName', 'First Name is  required').isString(),
+  check('lastName',  'Last Name is required').isString(),
+  check('email',  'Email is not valid').isEmail(),
+  check('password','Password must be at least 6 characters long and contain a number').isLength({min:6})
+],isAdmin, async (req:Request, res: Response) => {
+  
+  // get the errors if there is any
+  const errors = validationResult(req);
+  //if errors is not empty then store the errors into json array
+  if (!errors.isEmpty()) 
+  {
+    return res.status(400).json({message: errors.array()});
+  }
+  try
+  {
+    //find if the user email exists
+    let user  = await User.findOne({email: req.body.email.toLowerCase()});
+
+    //if user email exists
+    if(user)
+    {
+      console.log(`Email ${user.email} already Exist.`)
+      return res.status(400).json({message:`Email already exists.`});
+    }
+
+    //if user don't exist
+    //create new user and save it to database
+    user = new User(req.body);
+    await user.save();
+
+    //generate token for verification of account
+    const emailToken = await new Token({user_id: user._id , emailToken : crypto.randomBytes(32).toString("hex")}).save();
+    const url = `${process.env.FRONTEND_URL || process.env.WEB}/users/${user._id}/verify/${emailToken.emailToken}`;
+    await sendEmail(user.email, 'Verify Email', 
+        `<p>Hello ${user.firstName},</p>
+        <br/>
+        <p>Click <a href='${url}'>here</a> to verify your email. If you didn't make this request just ignore this email.</p>
+        </br>
+        <p>Thank you,</p>
+        <p>Gade Loan App</p>`); 
+
+    return res.status(200).send({message: `Employee ${user.email} has been successfully registered.`});
+  
+  }
+  //if error
+  catch(error)
+  {
+    console.log('Error in registering a user', error);
+    //make the error status message error, it might contain private information 
+    res.status(500).send({message:`Something went wrong.`});
+  }
+});
+
+//deletes a user
+router.delete(`/:id`, isAdmin, async(req: Request, res: Response)=>
+{
+  //emplyee id
+  const  employee_id= req.params.id;
+
+  try 
+  {
+    const toBeDeletedEmployee = await User.findOne({_id: employee_id, role:UserRole.EMPLOYEE});
+
+    //check if  there are any records returned by this query
+    if(!toBeDeletedEmployee)
+    {
+      return res.status(400).json({message:'Employee not found'});
+    }
+
+   await toBeDeletedEmployee.deleteOne(); // delete employee
+
+    // Send a success response
+    res.status(200).json({ message: 'Employee deleted successfully' });
+  } 
+  catch (error) 
+  {
+    console.log(error);
+    return res.status(500).json({message:'Server Error'});
+  }
+
+});
 
 
-//gets user
+// Route to lock or unlock an employee by ID
+router.put('/lock-unlock/:id', async (req, res) => {
+  const employeeId = req.params.id;
+  const action = req.body.action; //  action is specified in the request body
+
+  try {
+    // Find the employee by ID
+    const employee = await User.findById(employeeId);
+    if (!employee) {
+      return res.status(404).json({ message: 'Employee not found' });
+    }
+
+    // Perform action based on the request body
+    if (action === 'lock') 
+    {
+      employee.isLocked = true;
+      await employee.save();
+      res.json({ message: 'Employee locked successfully' });
+    } 
+    else if (action === 'unlock') 
+    {
+      employee.isLocked = false;
+      await employee.save();
+      res.json({ message: 'Employee unlocked successfully' });
+    } 
+    else 
+    {
+      res.status(400).json({ message: 'Invalid action' });
+    }
+    
+  } catch (error) {
+    console.error('Error locking/unlocking employee:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+    
+
+//get all employee user
+router.get(`/employees`, isAdmin, async(req: Request, res: Response) => 
+{
+  const employee = await User.find({role: 'employee'});
+  //check if there is employee found
+  if(!employee)
+  {
+    return res.status(404).json({message:'No employees found.'});
+  }
+
+  return res.status(200).json(employee);
+});
+
+
+
+//gets user by id
 router.get(`/:user_id`, verifyToken,async(req:Request, res:Response) =>
 {
   try
@@ -101,6 +241,8 @@ router.get(`/:user_id`, verifyToken,async(req:Request, res:Response) =>
     res.status(500).json({message: 'Internal Server Error.'});
   }
 });
+
+
 
 // Update user profile
 router.put(`/:user_id`, verifyToken, upload.none() ,async(req:Request, res: Response)=>
@@ -205,6 +347,8 @@ router.post('/:user_id/verify/:token', async (req:Request,res:Response)=>
   }
 });
 
+
+
 //resend the email verification
 router.post('/resend-verification/:user_id',verifyToken ,async (req:Request, res:Response)=>
 {
@@ -262,6 +406,7 @@ router.post('/resend-verification/:user_id',verifyToken ,async (req:Request, res
     return res.status(500).json({message:'Server Error'});
   }
 });
+
 
 //send link for forgot password
 router.post('/forgot-password/',

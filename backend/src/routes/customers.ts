@@ -7,6 +7,8 @@ import cloudinary from 'cloudinary';
 import Customer, { CustomerType } from "../models/customerModel";
 import verifyToken, { isAdmin, isEmployee } from "../middleware/auth";
 import { body } from "express-validator";
+import User, { UserType } from "../models/userModel";
+import sendEmail from "../utilities/sendEmail";
 
 
 const router  = express.Router();
@@ -52,10 +54,33 @@ router.post(`/`,isEmployee,
     newCustomer.imageUrl = imageURL; //if upload was successful. add the URL to the new customer
     newCustomer.lastUpdated = new Date();
     newCustomer.user_id = req.userId; //user that creates the new customer
-  
     
+    console.log('user id::::', req.userId);
+
+    //create a user account for the new customer
+    const user = new User({
+      email: newCustomer.email.toLowerCase(),
+      firstName: newCustomer.firstName.toUpperCase(), 
+      lastName: newCustomer.lastName.toUpperCase(), 
+      role: 'user',
+      password: '123456'
+    });
+    
+    // send and email to the new customer containing the initial password
+    await sendEmail(user.email, 'Welcome to Gade Loan App', 
+        `<p>Hello ${user.firstName},</p>
+        <br/>
+        <p>Email: ${user.email}</p>
+        <p>Password: 123456</p>
+        <p>Please change your password immediately.</p>
+        </br>
+        <p>Thank you,</p>
+        <p>Gade Loan App</p>`);
+
+
     //save the new customer to the DB
     const customer = new  Customer(newCustomer);
+    await user.save() ;
     await  customer.save();
 
     //return a 201 status
@@ -157,8 +182,6 @@ router.put(`/:customer_id`, isAdmin, upload.array('imageFile',1), async(req:Requ
     res.status(500).json({message:"Internal Server Error."})
   }
 });
-
-
 
 
 

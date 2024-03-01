@@ -12,6 +12,7 @@ export type  UserType = {
   firstName:  string;
   role: string;
   emailVerified: boolean;
+  isLocked: boolean;
 };
 
 //user schema
@@ -22,6 +23,7 @@ const userSchema = new mongoose.Schema<UserType>({
   firstName: {type: String, required: true},
   role: {type: String, enum: ['admin','employee', 'user'], default: 'admin'}, //by default a user is just a regular user
   emailVerified: {type: Boolean, default: false},
+  isLocked: {type: Boolean, default: false},
 });
 
 

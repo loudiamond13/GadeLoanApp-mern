@@ -6,6 +6,7 @@ import { TransactionsType } from "../../../../backend/src/models/transactionMode
 import { useEffect } from "react";
 import Decimal from "decimal.js";
 import TransactionDetailsSection from "./TransactionDetailsSection";
+import CustomerTransactionList from "../../components/CustomerTransactionList";
 
 
 export type CustomerTransactionData =
@@ -61,7 +62,7 @@ const ManageTransactionForm = ({onUpdate, transaction}:Props) =>
         <p>Total Payment: ${transaction?.totalPayment.toFixed(2)}</p>
         <p>Balance: ${transaction?.totalBalance.toFixed(2)}</p>
         
-        <TransactionDetailsSection/>
+        <TransactionDetailsSection />
         <span>
           <button className="btn btn-dark" type="submit">
                 Process
@@ -69,35 +70,7 @@ const ManageTransactionForm = ({onUpdate, transaction}:Props) =>
         </span>
       </form>
       <div>
-        {transaction?.transactions.length ?? 0 > 1 ?
-        (
-          <div>
-            <h3 className="mt-5">Transactions History</h3>
-            <div>
-              <table className="table table-striped mt-2 col-lg-3">
-                <thead>
-                  <tr>
-                    <th>Amount</th>
-                    <th>Transaction Type</th>
-                    <th>Transaction Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                {transaction?.transactions.map((trans)=>
-                (
-                  <tr>
-                    <td>${parseFloat(trans.amount.toString()).toFixed(2)}</td>
-                    <td>{trans.transaction_code}</td>
-                    <td>{`${trans.date}`}</td>
-                  </tr>
-                ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ):(<h3 className="mt-5">No Transaction History</h3>)
-         
-        }
+        <CustomerTransactionList transaction={transaction}/>
       </div>
     </FormProvider>
   );

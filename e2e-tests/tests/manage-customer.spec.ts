@@ -97,3 +97,5 @@ test('Should allow the admin/employee to  make a payment', async({page}) =>
   await page.getByRole(`button`, {name: 'Process'}).click();
 
 });
+
+
