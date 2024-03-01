@@ -346,6 +346,7 @@ export const fetchCustomerTransactions = async(customer_id: string): Promise<Tra
 {
   const response = await fetch(`${API_BASE_URL}/api/transactions/${customer_id}`,
   {
+    method:"GET",
     credentials:'include'
   });
 
@@ -358,12 +359,12 @@ export const fetchCustomerTransactions = async(customer_id: string): Promise<Tra
 }
 
 //update a customer transaction
-export const updateCustomerTransaction = async(transactionFormData: FormData) =>
+export const updateCustomerPaymentTransaction = async(transactionFormData: FormData) =>
 {
 
     console.log('API debug: ', transactionFormData.get("amount"));
 
-    const response = await fetch(`${API_BASE_URL}/api/transactions/${transactionFormData.get('customer_id')}`,
+    const response = await fetch(`${API_BASE_URL}/api/transactions/payment/${transactionFormData.get('customer_id')}`,
     {
       method:"PUT",
       body:transactionFormData,
@@ -374,7 +375,7 @@ export const updateCustomerTransaction = async(transactionFormData: FormData) =>
     {
       throw new Error('Failed to Update Customer Transaction');
     }
-  
+    
     return response.json();
  
 };

@@ -1,16 +1,45 @@
 
 $white: #ffffff;
 
+// $theme-colors: (
+//     "light":      #ebebd2,
+//     "dark":       #451a18,
+//     "primary":    #6f8380, // #5868f6 - dark blue, #6f8380
+//     "secondary":  #e24fb9,
+//     "info":       #ffbe6e,
+//     "success":    #00bf70,
+//     "warning":    #e9d200,
+//     "danger":     #fd1e00,
+// );
+
+
+
+$white: #ffffff;
+
 $theme-colors: (
-    "light":      #ebebd2,
-    "dark":       #451a18,
-    "primary":    #5868f6,
-    "secondary":  #e24fb9,
-    "info":       #ffbe6e,
-    "success":    #00bf70,
-    "warning":    #e9d200,
-    "danger":     #fd1e00,
+    "light":      #e0dcd8,
+    "dark":       #152b1c,
+    "primary":    #287d19,
+    "secondary":  #e1a100,
+    "info":       #a2f5d6,
+    "success":    #00cd02,
+    "warning":    #ffcd4c,
+    "danger":     #ff1d54,
 );
+
+
+// $theme-colors: (
+//     "light":      #cbd4da,
+//     "dark":       #1f42a7,
+//     "primary":    #4547e5,
+//     "secondary":  #2babbd,
+//     "info":       #f37525,
+//     "success":    #16b26a,
+//     "warning":    #e5cf14,
+//     "danger":     #f62208,
+// );
+
+
 
 .customer-email {
     white-space: nowrap;
@@ -25,11 +54,17 @@ $theme-colors: (
 }
 
 .pagination-dark .page-item.active .page-link {
-    background-color: #451a18; /* Dark background color for active state */
-    border-color: #451a18; /* Dark border color for active state */
+    background-color: #152b1c; /* Dark background color for active state */
+    border-color: #152b1c; /* Dark border color for active state */
     color: #fff; /* Light text color for active state */
   }
 
+  @import url('https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+*{
+  //PT Sans
+  font-family: 'Ubuntu',  sans-serif;
+}
 
 @import "../node_modules/bootstrap/scss/bootstrap.scss";
 

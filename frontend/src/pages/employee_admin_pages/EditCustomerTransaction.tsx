@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
-import CustomerTransactionList from "../components/CustomerTransactionList";
-import * as apiClient from '../api-client';
+import CustomerTransactionList from "../../components/CustomerTransactionList";
+import * as apiClient from '../../api-client';
 import { useQuery } from "react-query";
 
 

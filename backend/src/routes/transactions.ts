@@ -10,13 +10,13 @@ const upload = multer();
 const router = express.Router();
 
 // get customer transactions
-router.get('/:id',isEmployee, async (req:Request, res:Response) =>
+router.get('/:id',verifyToken, async (req:Request, res:Response) =>
 {
-  
+  //the customer id
   const id= req.params.id.toString();
+
   try
   {
-    
     //find the a transaction using the  given ID and return it to the user if found otherwise make a new transaction for the user
     const customerTransaction = await Transaction.findOne({customer_id : id});
     //if there is no transaction for the customer make a new one
@@ -29,19 +29,10 @@ router.get('/:id',isEmployee, async (req:Request, res:Response) =>
     }
     else
     {
-      //calculate the loan total
-      const loanTotal = customerTransaction.transactions.filter((transaction)=> transaction.transaction_code  === 'Loan')
-                                                        .reduce((total, transact) => total + transact.amount, 0);
-      
-      //calculate the payment Total
-      const paymentTotal = customerTransaction.transactions.filter((transaction)=> transaction.transaction_code  === 'Pay')
-                                                        .reduce((total, transact) => total + transact.amount, 0);
+    
+  
 
-      customerTransaction.totalLoan = loanTotal;
-      customerTransaction.totalPayment = paymentTotal;
-      customerTransaction.totalBalance = loanTotal - paymentTotal ;
 
-      customerTransaction.transactions.sort((newDate, oldDate) => oldDate.date.getTime() - newDate.date.getTime());
       res.status(200).json(customerTransaction);
     }
   }
@@ -52,7 +43,7 @@ router.get('/:id',isEmployee, async (req:Request, res:Response) =>
 });
 
 
-router.put('/:customer_id', upload.none() ,isEmployee ,async (req:Request, res:Response) => 
+router.put('/payment/:customer_id', upload.none() ,isEmployee ,async (req:Request, res:Response) => 
 {
   try
   {
@@ -64,7 +55,9 @@ router.put('/:customer_id', upload.none() ,isEmployee ,async (req:Request, res:R
       return res.status(404).json({ message:'There is no such transaction.' });
     }
 
-    transaction.transactions.push(updatedTransaction);
+    console.log('asd ',req.userRole, req.body.date)
+
+    transaction.paymentTransactions.push(updatedTransaction);
 
     await transaction.save();
     res.status(201).json(transaction)

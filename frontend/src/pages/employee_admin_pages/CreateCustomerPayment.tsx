@@ -1,7 +1,7 @@
 
-import { useAppContext } from "../contexts/AppContext";
-import ManageTransactionForm from "../forms/ManageTransaction/ManageTransactionForm";
-import * as apiClient from '../api-client'
+import { useAppContext } from "../../contexts/AppContext";
+import ManageTransactionForm from "../../forms/ManageTransaction/ManageTransactionForm";
+import * as apiClient from '../../api-client'
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 
@@ -17,7 +17,7 @@ const CreateCustomerTransaction =()=>
     enabled: !!customer_id
    });
 
-  const {mutate} = useMutation(apiClient.updateCustomerTransaction, 
+  const {mutate} = useMutation(apiClient.updateCustomerPaymentTransaction, 
     {
       onSuccess:() => {
         queryClient.invalidateQueries('fetchCustomerTransactions');

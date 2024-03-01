@@ -211,7 +211,8 @@ router.put('/lock-unlock/:id', async (req, res) => {
 //get all employee user
 router.get(`/employees`, isAdmin, async(req: Request, res: Response) => 
 {
-  const employee = await User.find({role: 'employee'});
+  const employee = await User.find({role: 'employee'}).sort({firstName: -1}); // sort by firstname a-z
+  
   //check if there is employee found
   if(!employee)
   {

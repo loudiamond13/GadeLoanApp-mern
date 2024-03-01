@@ -1,7 +1,7 @@
 import { useMutation } from "react-query";
-import ManageCustomerForm from "../forms/ManageCustomer/ManageCustomerForm";
-import { useAppContext } from "../contexts/AppContext";
-import * as apiClient from '../api-client';
+import ManageCustomerForm from "../../forms/ManageCustomer/ManageCustomerForm";
+import { useAppContext } from "../../contexts/AppContext";
+import * as apiClient from '../../api-client';
 
 const CreateCustomer = () => 
 {

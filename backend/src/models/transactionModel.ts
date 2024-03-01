@@ -8,16 +8,24 @@ export type TransactionsType =
   totalLoan: number;
   totalPayment: number;
   totalBalance: number;
-  transactions: [{_id: string,amount :number,transaction_code:string, date:Date}];
+  loanTransactions: LoanTransaction[];
+  paymentTransactions: PaymentTransaction[];
+
 };
 
+interface LoanTransaction {
+  amount: number;
+  date: Date;
+  transaction_code: string;
+  status: 'approved' | 'pending';
+}
 
-// export type transactionType = 
-// {
-//   amount: number;
-//   transaction_code: string;
-//   date:Date;
-// };
+interface PaymentTransaction {
+  amount: number;
+  date: Date;
+  transaction_code: string;
+  status: 'approved' | 'pending';
+}
 
 const transactionSchema = new  mongoose.Schema<TransactionsType>
 ({
@@ -25,12 +33,38 @@ const transactionSchema = new  mongoose.Schema<TransactionsType>
   totalLoan : {type: Number ,  default: 0},
   totalPayment: {type:Number ,default: 0 },
   totalBalance:{type:Number,  default: 0}, // this will be calculated by the server side code
-  transactions: 
+  loanTransactions: 
   [{
     amount:Number,
-    transaction_code:String,
     date: Date,
-  }]
+    transaction_code:{type: String, default: 'Loan'},
+    status: {type: String, enum: ['approved', 'pending']}
+  }],
+  paymentTransactions:[{
+    amount:Number,
+    transaction_code:{type: String, default: 'Pay'},
+    date: Date,
+    status: {type: String, enum: ['approved', 'pending']}
+  }],
+});
+
+
+transactionSchema.pre<TransactionsType>('save', function (next) {
+  const { loanTransactions, paymentTransactions } = this;
+
+  // Calculate totalLoan
+  const totalLoan = loanTransactions.reduce((total, transaction) => total + transaction.amount, 0);
+  // Calculate totalPayment
+  const totalPayment = paymentTransactions.reduce((total, transaction) => total + transaction.amount, 0);
+  // Calculate totalBalance
+  const totalBalance = totalLoan - totalPayment;
+
+  // Update document fields
+  this.totalLoan = totalLoan;
+  this.totalPayment = totalPayment;
+  this.totalBalance = totalBalance;
+
+  next();
 });
 
 

@@ -46,7 +46,7 @@ const ManageTransactionForm = ({onUpdate, transaction}:Props) =>
     }
     formData.append('amount', formDataJson.amount.toString());
     formData.append('date', formDataJson.date.toString())
-    formData.append('transaction_code', formDataJson.transaction_code);
+
     onUpdate(formData);
   });
 
@@ -65,7 +65,7 @@ const ManageTransactionForm = ({onUpdate, transaction}:Props) =>
         <TransactionDetailsSection />
         <span>
           <button className="btn btn-dark" type="submit">
-                Process
+                Process Payment
           </button>
         </span>
       </form>

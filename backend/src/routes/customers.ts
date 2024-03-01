@@ -54,36 +54,38 @@ router.post(`/`,isEmployee,
     newCustomer.imageUrl = imageURL; //if upload was successful. add the URL to the new customer
     newCustomer.lastUpdated = new Date();
     newCustomer.user_id = req.userId; //user that creates the new customer
-    
-    console.log('user id::::', req.userId);
+
+    //create a new documet for customer
+    const customer = new  Customer(newCustomer);
 
     //create a user account for the new customer
+    //create a user with the same id of  the customer
     const user = new User({
+      _id: customer._id,
       email: newCustomer.email.toLowerCase(),
       firstName: newCustomer.firstName.toUpperCase(), 
       lastName: newCustomer.lastName.toUpperCase(), 
-      role: 'user',
+      role: 'customer',
       password: '123456'
     });
     
-    // send and email to the new customer containing the initial password
-    await sendEmail(user.email, 'Welcome to Gade Loan App', 
-        `<p>Hello ${user.firstName},</p>
-        <br/>
-        <p>Email: ${user.email}</p>
-        <p>Password: 123456</p>
-        <p>Please change your password immediately.</p>
-        </br>
-        <p>Thank you,</p>
-        <p>Gade Loan App</p>`);
-
-
-    //save the new customer to the DB
-    const customer = new  Customer(newCustomer);
+    //save the new customer and its user to the DB
     await user.save() ;
     await  customer.save();
 
-    //return a 201 status
+    // send and email to the new customer containing the initial password
+    await sendEmail(user.email, 'Welcome to Gade Loan App', 
+    `<p>Hello ${user.firstName},</p>
+    <br/>
+    <p>Email: ${user.email}</p>
+    <p>Password: 123456</p>
+    <p>Please change your password immediately.</p>
+    </br>
+    <p>Thank you,</p>
+    <p>Gade Loan App</p>`);
+
+
+    //return a 200/success status
     res.status(200).send(customer);
   }
   catch(error)

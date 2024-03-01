@@ -4,19 +4,20 @@ import './App.scss';
 import Layout from "./layouts/Layout";
 import Register from "./pages/register";
 import SignIn from "./pages/SignIn";
-import CreateCustomer from "./pages/CreateCustomer";
+import CreateCustomer from "./pages/employee_admin_pages/CreateCustomer";
 import { useAppContext } from "./contexts/AppContext";
 import { UserRole } from "../../backend/src/utilities/constants";
-import Customers from "./pages/Customers";
-import CreateCustomerTransaction from "./pages/CreateCustomerTransaction";
+import Customers from "./pages/employee_admin_pages/Customers";
+import CreateCustomerTransaction from "./pages/employee_admin_pages/CreateCustomerPayment"
 import EditCustomer from './pages/EditCustomer';
 import EditUserProfile from "./pages/EditUserProfile";
 import EmailVerification from "./components/EmailVerification";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-import EditCustomerTransaction from "./pages/EditCustomerTransaction";
-import Employees from "./pages/Employees";
-import CreateEmployee from "./pages/CreateEmployee";
+import EditCustomerTransaction from "./pages/employee_admin_pages/EditCustomerTransaction";
+import Employees from "./pages/employee_admin_pages/Employees";
+import CreateEmployee from "./pages/employee_admin_pages/CreateEmployee";
+import Home from "./pages/Home";
 
 
 
@@ -28,11 +29,7 @@ function App() {
       <Routes>
 
         <Route path="/"   
-        element={
-        <Layout>
-          <p>Home Page</p>
-        </Layout>
-        }/>
+        element={<Layout><Home/></Layout>}/>
 
         <Route path="/register"
         element={<Layout><Register/></Layout>}/>
@@ -70,7 +67,7 @@ function App() {
           <Route path="/create-customer" 
           element={<Layout><CreateCustomer/></Layout>}/>
 
-          <Route path="/transactions/:customer_id" 
+          <Route path="/payment/:customer_id" 
           element={<Layout><CreateCustomerTransaction/></Layout>}/>
 
           <Route path="/edit-customer/:customer_id"

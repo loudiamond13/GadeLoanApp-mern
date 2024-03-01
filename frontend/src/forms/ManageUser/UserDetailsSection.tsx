@@ -15,7 +15,8 @@ const UserDetailsSection =({user}: Props)=>
   const {register, watch ,formState:{errors}} = useFormContext<UserFormData>();
 
   return(
-    <div className="flex flex-col my-3 gap-4">
+    <div className="flex flex-col gap-4">
+      <h3 className="text-dark mb-2">Profile Settings</h3>
       <h5>Name:</h5>
       <div className="row">
         <label className="form-label col-lg-3">First Name: 
@@ -34,7 +35,7 @@ const UserDetailsSection =({user}: Props)=>
         (<><ResendVerificationBtn user_id={user._id}/></>) : (<span className="text-success"><BsCheck2Circle /></span>) 
         }
       </p>
-      <p>Leave this field empty if you don't want to change the email address.</p>
+      <p>Leave this fields empty if you don't wish to change your email address.</p>
       <div className="row">
         <label className="form-label col-lg-3">New email: 
               <input className="form-control" type="email"
@@ -54,7 +55,7 @@ const UserDetailsSection =({user}: Props)=>
         </label> 
       </div>
       <h5 className="mt-3">Change Password?</h5>
-      <label className="form-label col-md-6">Current Password
+      <label className="form-label col-md-6">Current Password:
         <input type="Password" className="form-control"
         {...register('currentPassword',{
           minLength: {value:6,message:"Should be at least 6 characters."},
@@ -66,7 +67,7 @@ const UserDetailsSection =({user}: Props)=>
         }
       </label>
       <div className="row">
-        <label className="form-label col-lg-3">New password
+        <label className="form-label col-lg-3">New password:
           <input type="password" className="form-control" 
           {...register("newPassword", 
           {minLength:{
@@ -77,7 +78,7 @@ const UserDetailsSection =({user}: Props)=>
               <span className="text-danger">{errors.newPassword.message}</span>
           )}
         </label>
-        <label className="form-label col-lg-3">Confirm new password
+        <label className="form-label col-lg-3">Confirm new password:
           <input type="password" className="form-control" 
           {...register("confirmNewPassword",{
             validate:(value) => {

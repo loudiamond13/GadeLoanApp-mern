@@ -1,6 +1,6 @@
 import { useQuery } from 'react-query';
-import * as apiClient from '../api-client';
-import EmployeeList from '../components/EmployeeList';
+import * as apiClient from '../../api-client';
+import EmployeeList from '../../components/EmployeeList';
 
 
 const Employees =()=>

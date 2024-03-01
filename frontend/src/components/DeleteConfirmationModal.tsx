@@ -20,7 +20,7 @@ const DeleteConfirmationModal = ({ text, onDelete,title }: Props) => {
 
   return (
     <>
-      <Button variant="danger" onClick={handleShow}>
+      <Button className='btn btn-md' variant="danger" onClick={handleShow}>
         Delete
       </Button>
 
