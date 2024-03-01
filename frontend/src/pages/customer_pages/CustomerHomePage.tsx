@@ -1,9 +1,9 @@
 import { useQuery } from "react-query";
-import { useAppContext } from "../contexts/AppContext";
-import * as apiContext from '../api-client';
+import { useAppContext } from "../../contexts/AppContext";
+import * as apiContext from '../../api-client';
 import { Container, Row, Col, Card } from 'react-bootstrap'; 
 import { Link } from 'react-router-dom';
-import CustomerDashboardLoanInformation from "../components/CustomerDashboardLoanInformation";
+import CustomerDashboardLoanInformation from "../../components/CustomerDashboardLoanInformation";
 
 const CustomerHomePage =()=>
 {
