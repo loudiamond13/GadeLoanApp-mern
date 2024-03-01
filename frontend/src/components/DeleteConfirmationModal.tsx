@@ -4,10 +4,11 @@ import Modal from 'react-bootstrap/Modal';
 
 type Props = {
   text: string;
+  title:string;
   onDelete: () => void;
 }
 
-const DeleteConfirmationModal = ({ text, onDelete }: Props) => {
+const DeleteConfirmationModal = ({ text, onDelete,title }: Props) => {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
@@ -25,7 +26,7 @@ const DeleteConfirmationModal = ({ text, onDelete }: Props) => {
 
       <Modal show={show} onHide={handleClose} animation={false}>
         <Modal.Header closeButton>
-          <Modal.Title>Delete?</Modal.Title>
+          <Modal.Title>{title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>{text}</Modal.Body>
         <Modal.Footer>

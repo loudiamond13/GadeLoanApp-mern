@@ -49,7 +49,7 @@ const EmployeeList =({employees}: Props)=>
     <div>
       <h3 className="mt-3">Employees</h3>
       <span>
-      <div className="col-4 my-3">
+      <div className="col my-3">
         <Link to='/add-employee' className="btn btn-dark mb-3 fw-medium " >Add Employee</Link>
       </div>
       </span>
@@ -65,7 +65,7 @@ const EmployeeList =({employees}: Props)=>
           <tbody>
           {employees?.map((employee)=>
           (
-            <tr key={employee._id}>
+            <tr key={employee._id} className="col">
               <td>{`${employee.firstName}  ${employee.lastName}`}</td>
               <td>{employee.email}</td>
               <td>
@@ -74,7 +74,9 @@ const EmployeeList =({employees}: Props)=>
                   {employee.isLocked ? 'Unlock' : 'Lock'}
                 </button>
 
-                <DeleteConfirmationModal text={`Are you sure you want to delete employee ${employee.firstName}?`}
+                <DeleteConfirmationModal 
+                  title= {'Delete Employee'}
+                  text={`Are you sure you want to delete employee ${employee.firstName}?`}
                   onDelete={() => handleDeleteEmployee(employee._id)}/>
               </td>
             </tr>
