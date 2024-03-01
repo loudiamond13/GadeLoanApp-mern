@@ -23,25 +23,32 @@ const CustomerList =({userRole, customerData}:Props)=>
   const [searchString, setSearchTerm] = useState("");
   const [branch, setBranch] = useState<string>('');
 
+  //if there is no customer  data provided by the parent component, let the user know.
+  if(!customerData)
+  {
+    return <h3 className="text-center mt-2">No Customer Found...</h3>;  
+  }
+
+   // Filter customer data based on search term
+   const filteredCustomerData = customerData.filter((customer) =>
+   (customer.firstName.toLowerCase().includes(searchString.toLowerCase()) ||
+   customer.lastName.toLowerCase().includes(searchString.toLowerCase())) && 
+   (branch === '' || customer.branch.toLowerCase() === branch.toLowerCase())
+ );
 
   // Calculate index range for current page
   const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
 
-  // Filter customer data based on search term
-  const filteredCustomerData = customerData?.filter((customer) =>
-    (customer.firstName.toLowerCase().includes(searchString.toLowerCase()) ||
-    customer.lastName.toLowerCase().includes(searchString.toLowerCase())) && 
-    (branch === '' || customer.branch.toLowerCase() === branch.toLowerCase())
-  );
+  const currentItems = filteredCustomerData.slice(indexOfFirstItem, indexOfLastItem);
 
-  const currentItems = filteredCustomerData?.slice(indexOfFirstItem, indexOfLastItem);
-
-  const handlePageChange = (page: number) => {
+  const handlePageChange = (page: number) => 
+  {
     setCurrentPage(page);
   };
 
-  const handleSearch = (searchString: string, selectedBranch: string) => {
+  const handleSearch = (searchString: string, selectedBranch: string) => 
+  {
     setSearchTerm(searchString);
     setBranch(selectedBranch);
     setCurrentPage(1); // Reset pagination to the first page when search term changes
@@ -60,10 +67,10 @@ const CustomerList =({userRole, customerData}:Props)=>
         <CustomerSearchBar onSearch={handleSearch} />
       </div>
 
-      {!filteredCustomerData?.length ? (<h3 className="text-center mt-3">No customers found...</h3>):null}
+      {!filteredCustomerData.length ? (<h3 className="text-center mt-3">No customers found...</h3>):null}
 
       <div className="text-black fs-5 col-12">
-        {currentItems?.map((customer)=>
+        {currentItems.map((customer)=>
         (
           <div className="border shadow border-dark border-2 bg-dark-subtle rounded  p-3 mb-3">
             <div className="bg-dark-subtle border-0 row">
