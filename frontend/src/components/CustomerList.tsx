@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import Pagination from "./Pagination";
 
 
+
 type Props =
 {
   customerData?: CustomerType[];
@@ -48,6 +49,7 @@ const CustomerList =({userRole, customerData}:Props)=>
 
 
 
+
   return(
     <div className="row">
       <h2 className="text-center text-dark">Customers</h2>
@@ -57,54 +59,54 @@ const CustomerList =({userRole, customerData}:Props)=>
       <div className="col-lg justify-content-end d-flex me-0 text-end">
         <CustomerSearchBar onSearch={handleSearch} />
       </div>
-     
-    <div className="text-black fs-5 col-12">
-      
-      {currentItems?.map((customer)=>(
-        <div className="border shadow border-dark border-2 bg-dark-subtle rounded  p-3 mb-3">
+
+      {!filteredCustomerData?.length ? (<h3 className="text-center mt-3">No customers found...</h3>):null}
+
+      <div className="text-black fs-5 col-12">
+        {currentItems?.map((customer)=>
+        (
+          <div className="border shadow border-dark border-2 bg-dark-subtle rounded  p-3 mb-3">
             <div className="bg-dark-subtle border-0 row">
-             <div className="col-4 my-auto">
-              <img className=" img-fluid rounded customerImage img-thumbnail " src={customer.imageUrl[0]} alt={customer.firstName+" image"} />
-             </div>
-             <div className="col-8">
-             <p className="fw-medium">{customer.firstName +" "+ customer.lastName}</p>
-              <p className="customer-email"><BsFillEnvelopeFill /> : {customer.email}</p>
-              <p><BsTelephoneFill /> : {customer.phoneNumber}</p>
-              <p><BsRecordCircleFill /> : {customer.branch}</p>
-              <p><BsHouseDoorFill /> : {customer.streetAddress+", "+customer.barangay+", "+customer.cityMunicipality}</p>
-             </div>
-             <div className="text-end"> 
-                <span className="">
-                  <Link className="text-decoration-none btn btn-dark" 
-                    to={`/transactions/${customer._id}`}> Make a Payment/Loan
-                  </Link>
-                 <span className="mx-2">
-                  <Link className="text-decoration-none btn btn-dark"
-                    to={`/edit-transactions/${customer._id}`}>
-                      Edit Transactions
-                  </Link>
-                 </span>
-                </span>
-                {userRole === UserRole.ADMIN ? 
-                  (
-                    <span className="">
-                      <Link className="text-decoration-none btn btn-dark" 
-                        to={`/edit-customer/${customer._id}`}> Edit Customer
-                      </Link>
-                    </span>
-                  ):null
-                }
-             </div>
+              <div className="col-4 my-auto">
+                <img className=" img-fluid rounded customerImage img-thumbnail " src={customer.imageUrl[0]} alt={customer.firstName+" image"} />
+              </div>
+              <div className="col-8">
+              <p className="fw-medium">{customer.firstName +" "+ customer.lastName}</p>
+                <p className="customer-email"><BsFillEnvelopeFill /> : {customer.email}</p>
+                <p><BsTelephoneFill /> : {customer.phoneNumber}</p>
+                <p><BsRecordCircleFill /> : {customer.branch}</p>
+                <p><BsHouseDoorFill /> : {customer.streetAddress+", "+customer.barangay+", "+customer.cityMunicipality}</p>
+              </div>
+              <div className="text-end"> 
+                  <span className="">
+                    <Link className="text-decoration-none btn btn-dark" 
+                      to={`/transactions/${customer._id}`}> Make a Payment/Loan
+                    </Link>
+                  <span className="mx-2">
+                    <Link className="text-decoration-none btn btn-dark"
+                      to={`/edit-transactions/${customer._id}`}>
+                        Edit Transactions
+                    </Link>
+                  </span>
+                  </span>
+                  {userRole === UserRole.ADMIN ? 
+                    (
+                      <span className="">
+                        <Link className="text-decoration-none btn btn-dark" 
+                          to={`/edit-customer/${customer._id}`}> Edit Customer
+                        </Link>
+                      </span>
+                    ):null}
+              </div>
             </div>
-        </div>
-      ))}
-    </div>
-    <div className="col-12 d-flex justify-content-center mt-3">
+          </div>
+        ))}
+      </div>
+      <div className="col-12 d-flex justify-content-center mt-3">
        <Pagination
-          totalPages={Math.ceil(filteredCustomerData?.length / ITEMS_PER_PAGE)}
+          totalPages={Math.ceil(filteredCustomerData.length / ITEMS_PER_PAGE)}
           currentPage={currentPage}
-          onPageChange={handlePageChange}/>
-          
+          onPageChange={handlePageChange}/> 
       </div>
     </div>
   );

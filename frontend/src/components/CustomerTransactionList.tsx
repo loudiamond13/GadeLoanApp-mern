@@ -58,6 +58,7 @@ const CustomerTransactionList =({transaction}:Props) =>
             <h3 className="mt-5">Transactions History</h3>
             <CustomerTransactionSortBar onSortChange={handleSortChange}/>
             <div>
+              {!sortedTransactions?.length ? (<h3 className="text-center">No Transaction Found!...</h3>) : null}
               <table className="table table-striped mt-2 col-lg-3">
                 <thead>
                   <tr>
@@ -79,12 +80,12 @@ const CustomerTransactionList =({transaction}:Props) =>
               </table>
             </div>
            
-            <Pagination totalPages={Math.ceil(sortedTransactions?.length / ITEMS_PER_PAGE)}
+            <Pagination totalPages={Math.ceil(sortedTransactions.length / ITEMS_PER_PAGE)}
                 currentPage={currentPage}
                 onPageChange={handlePageChange}/>
             
           </div>
-        ):(<h3 className="mt-5">No Transaction History Found</h3>)
+        ):(<h3 className="mt-5">No Transaction History</h3>)
         }
   </>);
 }
