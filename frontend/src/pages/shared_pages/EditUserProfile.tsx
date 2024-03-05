@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "react-query";
-import { useAppContext } from "../contexts/AppContext";
-import * as apiClient from '../api-client';
-import ManageUserForm from "../forms/ManageUser/ManageUserForm";
+import { useAppContext } from "../../contexts/AppContext";
+import * as apiClient from '../../api-client';
+import ManageUserForm from "../../forms/ManageUser/ManageUserForm";
 import {  useNavigate } from "react-router-dom";
 
 

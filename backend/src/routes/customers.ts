@@ -127,21 +127,64 @@ router.get(`/:id`, isEmployee, async(req:Request, res: Response)=>
 
 
 
-// get all customer
-router.get('/', isEmployee, async (req:Request,res:Response) =>
-{
- 
-  try
-  {
-    const  customers = await Customer.find().sort("lastName");//sort by first Name 
-    res.json(customers);
-  
-  }
-  catch(error)
-  {
-    res.status(500).json({message:`Failed to load customers.`})
+router.get('/', isEmployee, async (req: Request, res: Response) => {
+  try {
+      let { search, pageNum, branch } = req.query; // Get search term, page number, limit, and branch filter from query parameters
+      const query: any = {}; // Define an empty query object
+
+      // If search term is provided, add search conditions to the query
+      if (search) {
+          query.$or = [
+              { firstName: { $regex: new RegExp(search as string, 'i') } }, // Case-insensitive search by first name
+              { lastName: { $regex: new RegExp(search as string, 'i') } },  // Case-insensitive search by last name
+              // Add more fields to search if needed
+          ];
+      }
+
+      // If branch filter is provided, add branch filter to the query
+      if (branch && (branch === 'Carmen' || branch === 'Buenavista')) {
+          query.branch = branch;
+      }
+
+
+      const pageSize = 5;
+      const page = pageNum ? parseInt(pageNum.toString()) : 1; // set the default page number to page 1
+
+      // Perform pagination using skip and limit
+      const skip = (page - 1) * pageSize; // Calculate the number of documents to skip
+      const totalCount = await Customer.countDocuments(query); // Get the total count of documents that match the query
+      const customers = await Customer.find(query)
+          .sort({ firstName: 1 }) // Sort by firstName in default
+          .skip(skip) // Skip documents
+          .limit(pageSize); // Limit the number of documents per page
+
+      // Return the paginated customers and metadata
+      res.json({
+          totalCount,
+          totalPages: Math.ceil(totalCount / pageSize), // Calculate the total number of pages
+          currentPage: page,
+          customers,
+      });
+  } catch (error) {
+      res.status(500).json({ message: 'Failed to load customers.' });
   }
 });
+
+
+// // get all customer
+// router.get('/', isEmployee, async (req:Request,res:Response) =>
+// {
+ 
+//   try
+//   {
+//     const  customers = await Customer.find().sort("lastName");//sort by first Name 
+//     res.json(customers);
+//   }
+//   catch(error)
+//   {
+//     res.status(500).json({message:`Failed to load customers.`})
+//   }
+// });
 
 router.put(`/:customer_id`, isAdmin, upload.array('imageFile',1), async(req:Request,res:Response)=>
 {

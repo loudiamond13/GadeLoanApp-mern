@@ -1,6 +1,6 @@
-import { UserRole } from "../../../backend/src/utilities/constants";
-import { useAppContext } from "../contexts/AppContext";
-import CustomerHomePage from "./customer_pages/CustomerHomePage";
+import { UserRole } from "../../../../backend/src/utilities/constants";
+import { useAppContext } from "../../contexts/AppContext";
+import CustomerHomePage from "../customer_pages/CustomerHomePage";
 
 
 

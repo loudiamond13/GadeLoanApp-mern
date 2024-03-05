@@ -1,4 +1,4 @@
-import { SignInFormData } from "./pages/SignIn";
+import { SignInFormData } from "./pages/shared_pages/SignIn";
 import { RegisterFormData } from "./pages/register";
 import {CustomerType} from '../../backend/src/models/customerModel'
 import {TransactionsType} from '../../backend/src/models/transactionModel';
@@ -285,7 +285,8 @@ export const createCustomer = async(customerFormData: FormData)=>
 
   if(!response.ok)
   {
-    throw new Error('Error on creating the customer!');
+    const responseBody = await response.json();
+    throw new Error(responseBody.message || 'Server error!');
   }
 
   return response.json();
@@ -294,18 +295,32 @@ export const createCustomer = async(customerFormData: FormData)=>
 
 
 
-//fetching customers client api
-export const fetchCustomers = async(): Promise<CustomerType[]>=>
-{
-  const response = await fetch(`${API_BASE_URL}/api/customers`,{credentials:'include'});
-
-  if(!response.ok)
-  {
-    throw new Error('Error fetching customers!');
+//gets the customer list
+export const fetchCustomers = async (searchString: string, branch: string, pageNum: number) => {
+  const queryParams = new URLSearchParams();
+  if (searchString) {
+    queryParams.append('search', searchString);
   }
-  
+  if (branch) {
+    queryParams.append('branch', branch);
+  }
+  if (pageNum) {
+    queryParams.append('pageNum', pageNum.toString());
+  }
+
+  const queryString = queryParams.toString();
+  const apiUrl = `${API_BASE_URL}/api/customers${queryString ? `?${queryString}` : ''}`;
+
+  const response = await fetch(apiUrl, { credentials: 'include' });
+
+  if (!response.ok) {
+    const responseBody = await response.json();
+    throw new Error(responseBody.message || 'Server error!');
+  }
+
   return response.json();
-}
+};
+
 
 //finds just one customer  by id
 export const fetchCustomer = async(customer_id : string): Promise<CustomerType> =>
@@ -317,7 +332,8 @@ export const fetchCustomer = async(customer_id : string): Promise<CustomerType> 
   });
   if (!response.ok)
   {
-    throw new Error(`Can't find Customer.`);
+    const responseBody = await response.json();
+    throw new Error(responseBody.message || 'Server error!');
   }
 
   return response.json();
@@ -335,7 +351,8 @@ export const updateCustomer = async(customerFormData: FormData) =>
 
   if(!response.ok)
   {
-    throw new Error('Error on updating Customer');
+    const responseBody = await response.json();
+    throw new Error(responseBody.message || 'Server error!');
   }
 
   return response.json();
@@ -352,34 +369,49 @@ export const fetchCustomerTransactions = async(customer_id: string): Promise<Tra
 
   if(!response.ok)
   {
-    throw  new Error("Couldn't get transactions for this user");
+    const responseBody = await response.json();
+    throw new Error(responseBody.message || 'Server error!');
   }
   
   return response.json()
 }
 
 //update a customer transaction
-export const updateCustomerPaymentTransaction = async(transactionFormData: FormData) =>
+export const createCustomerPayment = async(customerPaymentData: FormData) =>
 {
 
-    console.log('API debug: ', transactionFormData.get("amount"));
-
-    const response = await fetch(`${API_BASE_URL}/api/transactions/payment/${transactionFormData.get('customer_id')}`,
+    const response = await fetch(`${API_BASE_URL}/api/transactions/payment/${customerPaymentData.get('customer_id')}`,
     {
       method:"PUT",
-      body:transactionFormData,
+      body:customerPaymentData,
       credentials: "include",
     });
 
     if(!response.ok)
     {
-      throw new Error('Failed to Update Customer Transaction');
+      const responseBody = await response.json();
+      throw new Error(responseBody.message || 'Server error!');
     }
-    
+
     return response.json();
- 
 };
 
+export const createCustomerLoan = async(customerLoanData: FormData) => 
+{
+  const response = await fetch(`${API_BASE_URL}/api/transactions/loan/${customerLoanData.get('customer_id')}`,
+  {
+    method: 'PUT',
+    body:customerLoanData,
+    credentials: 'include'
+  });
 
+  if(!response.ok)
+  {
+    const responseBody = await response.json();
+    throw new Error(responseBody.message || 'Error creating loan transaction!');
+  }
+
+  return response.json();
+}
 
 

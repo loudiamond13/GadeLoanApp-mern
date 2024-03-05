@@ -1,9 +1,9 @@
 
 import { useAppContext } from "../../contexts/AppContext";
-import ManageTransactionForm from "../../forms/ManageTransaction/ManageTransactionForm";
 import * as apiClient from '../../api-client'
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
+import ManagePaymentTransactionForm from "../../forms/ManageTransaction/ManagePaymentTransactionForm";
 
 
 const CreateCustomerTransaction =()=>
@@ -17,24 +17,24 @@ const CreateCustomerTransaction =()=>
     enabled: !!customer_id
    });
 
-  const {mutate} = useMutation(apiClient.updateCustomerPaymentTransaction, 
+  const {mutate} = useMutation(apiClient.createCustomerPayment, 
     {
-      onSuccess:() => {
-        queryClient.invalidateQueries('fetchCustomerTransactions');
-        showToast({message: "Transaction submitted.", type:'success'});
+      onSuccess:async()  => {
+        await queryClient.invalidateQueries('fetchCustomerTransactions');
+        showToast({message: "Payment transaction submitted.", type:'success'});
         
       },
       onError:() => {
-        showToast({message:'Error on processing transaction', type: 'error'});
+        showToast({message:'Error on processing payment transaction', type: 'error'});
       }
     });
 
-  const  handleSubmit= (customerTransactionData:FormData) =>
+  const  handleSubmit= (customerPayementTransactionData:FormData) =>
    {
-     mutate(customerTransactionData);
+     mutate(customerPayementTransactionData);
   }
 
-  return (<ManageTransactionForm transaction={transaction} onUpdate={handleSubmit} />);
+  return (<ManagePaymentTransactionForm transaction={transaction} onUpdate={handleSubmit} />);
 }
 
 export  default CreateCustomerTransaction;

@@ -3,21 +3,23 @@ import{BrowserRouter as Router,Route,Routes} from "react-router-dom";
 import './App.scss';
 import Layout from "./layouts/Layout";
 import Register from "./pages/register";
-import SignIn from "./pages/SignIn";
+import SignIn from "./pages/shared_pages/SignIn";
 import CreateCustomer from "./pages/employee_admin_pages/CreateCustomer";
 import { useAppContext } from "./contexts/AppContext";
 import { UserRole } from "../../backend/src/utilities/constants";
 import Customers from "./pages/employee_admin_pages/Customers";
-import CreateCustomerTransaction from "./pages/employee_admin_pages/CreateCustomerPayment"
-import EditCustomer from './pages/EditCustomer';
-import EditUserProfile from "./pages/EditUserProfile";
+import CreateCustomerPayment from "./pages/shared_pages/CreateCustomerPayment"
+import EditCustomer from './pages/shared_pages/EditCustomer';
+import EditUserProfile from "./pages/shared_pages/EditUserProfile";
 import EmailVerification from "./components/EmailVerification";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
+import ForgotPassword from "./pages/shared_pages/ForgotPassword";
+import ResetPassword from "./pages/shared_pages/ResetPassword";
 import EditCustomerTransaction from "./pages/employee_admin_pages/EditCustomerTransaction";
 import Employees from "./pages/employee_admin_pages/Employees";
 import CreateEmployee from "./pages/employee_admin_pages/CreateEmployee";
-import Home from "./pages/Home";
+import Home from "./pages/shared_pages/Home";
+import CreateCustomerLoan from "./pages/shared_pages/CreateCustomerLoan";
+
 
 
 
@@ -50,7 +52,10 @@ function App() {
         {isLoggedIn?
         (
           <>
-            
+            <Route path="/loan/:customer_id" 
+              element={<Layout><CreateCustomerLoan/></Layout>}/>
+            <Route path="/payment/:customer_id" 
+              element={<Layout><CreateCustomerPayment/></Layout>}/>
             <Route path="/user-profile/:user_id" 
               element={<Layout><EditUserProfile/></Layout>}/>
             <Route path="/resend-verification/:user_id"/>
@@ -66,9 +71,6 @@ function App() {
 
           <Route path="/create-customer" 
           element={<Layout><CreateCustomer/></Layout>}/>
-
-          <Route path="/payment/:customer_id" 
-          element={<Layout><CreateCustomerTransaction/></Layout>}/>
 
           <Route path="/edit-customer/:customer_id"
           element={<Layout><EditCustomer/></Layout>}/>

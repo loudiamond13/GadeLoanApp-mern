@@ -1,8 +1,8 @@
 import { useMutation } from "react-query";
-import { useAppContext } from "../contexts/AppContext";
-import * as apiClient from '../api-client';
+import { useAppContext } from "../../contexts/AppContext";
+import * as apiClient from '../../api-client';
 import { useNavigate } from "react-router-dom";
-import ManageResetPasswordForm from "../forms/ManageResetPassword/ManageResetPasswordForm";
+import ManageResetPasswordForm from "../../forms/ManageResetPassword/ManageResetPasswordForm";
 
 
 const ResetPassword = () =>

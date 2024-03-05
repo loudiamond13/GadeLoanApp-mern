@@ -1,8 +1,8 @@
 import { useParams } from "react-router-dom";
-import { useAppContext } from "../contexts/AppContext";
+import { useAppContext } from "../../contexts/AppContext";
 import { useMutation, useQuery } from "react-query";
-import * as apiClient from '../api-client';
-import ManageCustomerForm from "../forms/ManageCustomer/ManageCustomerForm";
+import * as apiClient from '../../api-client';
+import ManageCustomerForm from "../../forms/ManageCustomer/ManageCustomerForm";
 
 const EditCustomer =()=>
 {

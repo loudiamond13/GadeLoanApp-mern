@@ -1,11 +1,12 @@
 import { useFormContext } from "react-hook-form";
-import { CustomerTransactionData } from "./ManageTransactionForm";
+import { CustomerPaymentTransactionData } from "./ManagePaymentTransactionForm";
 
 
-const TransactionDetailsSection =()=> 
+
+const PaymentTransactionDetailsSection =()=> 
 {
 
-  const {register, formState:{errors}} = useFormContext<CustomerTransactionData>();
+  const {register, formState:{errors}} = useFormContext<CustomerPaymentTransactionData>();
   return(
     <div className="row">
           <label className="form-label col-lg-3">Payment Amount: 
@@ -29,4 +30,4 @@ const TransactionDetailsSection =()=>
 };
 
 
-export default TransactionDetailsSection;
+export default PaymentTransactionDetailsSection;

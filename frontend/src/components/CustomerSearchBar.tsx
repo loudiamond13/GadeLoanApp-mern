@@ -10,7 +10,7 @@ const CustomerSearchBar =({onSearch}: Props)=>
  
 
   const [searchString, setSearchString] = useState<string>('');
-  const [branch, setBranch] = useState<string>('')
+  const [branch, setBranch] = useState<string>('');
 
   const handleSubmit = (event: FormEvent)=>
   {
@@ -27,7 +27,7 @@ const CustomerSearchBar =({onSearch}: Props)=>
        </div>
        <div className="col-4">
           <select className="form-select" value={branch} onChange={(event)=> setBranch(event.target.value)}>
-              <option value="">-Branch-</option>
+              <option value="">All Branch</option>
               <option value="Carmen">Carmen</option>
               <option value="Buenavista">Buenavista</option>
           </select>
