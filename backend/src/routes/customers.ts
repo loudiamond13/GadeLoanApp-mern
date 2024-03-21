@@ -99,25 +99,23 @@ router.post(`/register`,
        <p>Thank you,</p>
        <p>Gade Loan App</p>`); 
 
-    //if userRole is undefined/"", it means no one  is logged in so we will not set a token
-    if(!req.userRole)
-    {
-      //process a token that expires in 1day
-      //send the user role,firstname,lastname,userId to the middleware
-      const token = jwt.sign({
-            userID: newUser._id, 
-            userRole: newUser.role, 
-            userFname: newUser.firstName, 
-            userLname: newUser.lastName
-          },
-          process.env.JWT_SECRET_KEY as string, {expiresIn: '1d'});
+   
+    //process a token that expires in 1day
+    //send the user role,firstname,lastname,userId to the middleware
+    const token = jwt.sign({
+          userID: newUser._id, 
+          userRole: newUser.role, 
+          userFname: newUser.firstName, 
+          userLname: newUser.lastName
+        },
+        process.env.JWT_SECRET_KEY as string, {expiresIn: '1d'});
 
-      //set the cookie
-      res.cookie(`auth_token`, token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 86400000});
-    }
+    //set the cookie
+    res.cookie(`auth_token`, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 86400000});
+    
 
     //return a 200/success status
     return res.status(200).send({message:`Customer ${newUser.email} has been successfully registered.` });
