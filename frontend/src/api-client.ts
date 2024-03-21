@@ -1,8 +1,10 @@
 import { SignInFormData } from "./pages/shared_pages/SignIn";
 import { RegisterFormData } from "./pages/register";
 import {CustomerType} from '../../backend/src/models/customerModel'
-import {TransactionsType} from '../../backend/src/models/transactionModel';
+import { PaymentTransaction} from '../../backend/src/models/loanModel';
 import {UserType} from '../../backend/src/models/userModel';
+import {LoanListResponse, PaymentIntentResponse, UserListResponse} from '../../backend/src/utilities/types';
+import { PaymentFormData } from "./forms/PaymentForm/PaymentForm";
 
 //gets the base url from env file
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
@@ -68,9 +70,9 @@ export const validateToken = async () =>
 }
 
 //fetch user
-export const fetchUserByID =async(user_id:string): Promise<UserType> =>
+export const fetchCurrentUser =async(): Promise<UserType> =>
 {
-  const response = await fetch(`${API_BASE_URL}/api/users/${user_id}`,
+  const response = await fetch(`${API_BASE_URL}/api/users/current-user`,
   {
     credentials: 'include',
     method:'GET'
@@ -143,10 +145,30 @@ export const createEmployee = async(formData: RegisterFormData)=>
    }
 }
 
-//gets all employee
-export const fetchEmployees= async():Promise<UserType[]> => 
+//gets all users
+export const fetchUsers= async(searchString: string, pageNum: number, role: string):Promise<UserListResponse> => 
 {
-  const response = await fetch(`${API_BASE_URL}/api/users/employees`,
+  const queryParams = new URLSearchParams();
+
+  if(searchString)
+  {
+    queryParams.append('search', searchString);
+  }
+  if(role)
+  {
+    queryParams.append('role', role);
+  }
+  if(pageNum)
+  {
+    queryParams.append('pageNum', pageNum.toString());
+  }
+
+  const queryString = queryParams.toString();
+
+  //build the query string, if no query string set the value ''/ empty string
+  const apiUrl = `${API_BASE_URL}/api/users/users${queryString ? `?${queryString}`:''}`;
+
+  const response = await fetch(apiUrl,
   {
     method:"GET",
     credentials: 'include'
@@ -198,9 +220,9 @@ export const lockUserByID = async (id:string, isLocked:boolean) => {
 };
 
 //resend email verification
-export const resendEmailVerification = async(user_id: string) => 
+export const resendEmailVerification = async() => 
 {
-  const response = await fetch(`${API_BASE_URL}/api/users/resend-verification/${user_id}`,
+  const response = await fetch(`${API_BASE_URL}/api/users/resend-verification`,
   {
     method : "POST",
     credentials:'include',
@@ -276,7 +298,7 @@ export const resetPassword = async(resetPasswordData:FormData) =>
 export const createCustomer = async(customerFormData: FormData)=> 
 {
   
-  const response = await fetch(`${API_BASE_URL}/api/customers`,  
+  const response = await fetch(`${API_BASE_URL}/api/customers/register`,  
   {
     method:'POST',
     credentials:'include',
@@ -296,13 +318,10 @@ export const createCustomer = async(customerFormData: FormData)=>
 
 
 //gets the customer list
-export const fetchCustomers = async (searchString: string, branch: string, pageNum: number) => {
+export const fetchCustomers = async (searchString: string, pageNum: number) => {
   const queryParams = new URLSearchParams();
   if (searchString) {
     queryParams.append('search', searchString);
-  }
-  if (branch) {
-    queryParams.append('branch', branch);
   }
   if (pageNum) {
     queryParams.append('pageNum', pageNum.toString());
@@ -359,13 +378,22 @@ export const updateCustomer = async(customerFormData: FormData) =>
 }
 
 //customer transaction fetch api
-export const fetchCustomerTransactions = async(customer_id: string): Promise<TransactionsType>=>
+export const fetchCustomerLoans = async(customer_id: string, status: string, pageNumber: number): Promise<LoanListResponse>=>
 {
-  const response = await fetch(`${API_BASE_URL}/api/transactions/${customer_id}`,
+  const queryParams = new URLSearchParams();
+  if(status)
   {
-    method:"GET",
-    credentials:'include'
-  });
+    queryParams.append('status', status);
+  }
+  if(pageNumber)
+  {
+    queryParams.set('pageNum', pageNumber.toString());
+  }
+
+  const queryString = queryParams.toString();
+  const apiUrl = `${API_BASE_URL}/api/loans/${customer_id}${queryString ? `?${queryString}` : ""}`;
+
+  const response = await fetch(apiUrl, {credentials: 'include'});
 
   if(!response.ok)
   {
@@ -376,31 +404,31 @@ export const fetchCustomerTransactions = async(customer_id: string): Promise<Tra
   return response.json()
 }
 
-//update a customer transaction
-export const createCustomerPayment = async(customerPaymentData: FormData) =>
+//fetch customer loan/payment transaction by id
+export const fetchCustomerPaymentTransactionByID = async(customer_id:string ,paymentTransaction_id : string) 
+          :Promise<PaymentTransaction> =>
 {
+  const response = await fetch(`${API_BASE_URL}/api/loans/${customer_id}/payment/${paymentTransaction_id}`,
+  {
+    method: 'GET',
+    credentials: 'include'
+  });
 
-    const response = await fetch(`${API_BASE_URL}/api/transactions/payment/${customerPaymentData.get('customer_id')}`,
-    {
-      method:"PUT",
-      body:customerPaymentData,
-      credentials: "include",
-    });
+  if(!response.ok)
+  {
+    const responseBody = await response.json();
+    throw new Error(responseBody.message || 'Server Error');
+  }
 
-    if(!response.ok)
-    {
-      const responseBody = await response.json();
-      throw new Error(responseBody.message || 'Server error!');
-    }
+  return response.json();
+}
 
-    return response.json();
-};
-
+//create customer Loan
 export const createCustomerLoan = async(customerLoanData: FormData) => 
 {
-  const response = await fetch(`${API_BASE_URL}/api/transactions/loan/${customerLoanData.get('customer_id')}`,
+  const response = await fetch(`${API_BASE_URL}/api/loans/${customerLoanData.get('customer_id')}`,
   {
-    method: 'PUT',
+    method: 'POST',
     body:customerLoanData,
     credentials: 'include'
   });
@@ -413,5 +441,184 @@ export const createCustomerLoan = async(customerLoanData: FormData) =>
 
   return response.json();
 }
+
+
+//create payment intent
+export const createPaymentIntent = async(customer_id: string, paymentTransaction_id: string)
+        : Promise<PaymentIntentResponse> =>
+{
+  const response = await fetch(`${API_BASE_URL}/api/loans/${customer_id}/payment-intent/${paymentTransaction_id}`,
+  {
+    method:'POST',
+    credentials: 'include',
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+
+  if(!response.ok)
+  {
+    const responseBody = await response.json();
+    throw new Error(responseBody.message || 'Error on creating payment Intent');
+  }
+
+  return response.json();
+}
+
+export const createPayment = async(paymentFormData: PaymentFormData) =>
+{
+  const response = await fetch(`${API_BASE_URL}/api/loans/${paymentFormData.customer_id}/payment/${paymentFormData.paymentTransaction_id}`,
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify(paymentFormData),
+  });
+
+  
+  if(!response.ok)
+  {
+    const responseBody = await response.json();
+    throw new Error(responseBody.message || 'Error on creating payment Intent');
+  }
+
+  return response.json();
+}
+
+
+//approve a loan
+export const approveLoan = async(loan_id: string, interestRate: string) =>
+{
+  const response = await fetch(`${API_BASE_URL}/api/loans/approval/${loan_id}`, 
+  {
+    method:"PUT",
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ interestRate })
+  });
+
+  if(!response.ok)
+  {
+    const responseBody = await  response.json();
+    throw new Error(responseBody.message || 'Server error while trying to approve loan');
+  }
+
+  return response.json();
+}
+
+//decline a loan
+export const declineLoan = async(loan_id: string) =>
+{
+  const response = await fetch(`${API_BASE_URL}/api/loans/decline/${loan_id}`, 
+  {
+    method:"PUT",
+    credentials: 'include'
+  });
+
+  if(!response.ok)
+  {
+    const responseBody = await  response.json();
+    throw new Error(responseBody.message || 'Server error while trying to approve loan');
+  }
+
+  return response.json();
+}
+
+
+//refund a loan
+export const refundLoan = async(loan_id:string) =>
+{
+  const response = await fetch(`${API_BASE_URL}/api/loans/refund/${loan_id}`, 
+  {
+    method:"PUT",
+    credentials: 'include'
+  });
+
+  if(!response.ok)
+  {
+    const responseBody = await  response.json();
+    throw new Error(responseBody.message || 'Server error while trying to refund loan');
+  }
+
+  return response.json();
+}
+
+
+//cancelLoan
+export const cancelLoan = async(loan_id:string) =>
+{
+  const response = await fetch(`${API_BASE_URL}/api/loans/cancel/${loan_id}`, 
+  {
+    method:"PUT",
+    credentials: 'include'
+  });
+
+  if(!response.ok)
+  {
+    const responseBody = await  response.json();
+    throw new Error(responseBody.message || 'Server error while trying to cancel a loan');
+  }
+
+  return response.json();
+}
+
+
+export const getLoanRequests= async(searchString: string, pageNum: number): Promise<LoanListResponse>=>
+{
+  //build the query params
+  const queryParams = new URLSearchParams();
+  if(searchString)
+  {
+    queryParams.append('search', searchString);
+  }
+  if(pageNum)
+  {
+    queryParams.append('pageNum', pageNum.toString());
+  }
+
+  const queryString = queryParams.toString();
+  
+  //builds the url
+  //if there is query string add it to the url for searching/pagination, else just empty string
+  const apiUrl = `${API_BASE_URL}/api/loans/customers/loan-request${queryString ? `?${queryString}` : ''}`;
+
+
+  const response = await fetch(apiUrl,
+  {
+    credentials:'include',
+  });
+
+  if(!response.ok)
+  {
+    const responseBody = await response.json();
+    throw new Error(responseBody.message || 'Server error while retrieving loan request data.');
+  }
+
+  return response.json();
+}
+
+
+export const getLoanRequestsCount = async()=>
+{
+  const response =  await fetch(`${API_BASE_URL}/api/loans/loan-requests/count`,
+  {
+    method:'GET',
+    credentials: 'include'
+  });
+
+  if(!response.ok)
+  {
+    const responseBody = await response.json();
+    throw new Error(responseBody.message || 'Server  error while getting the count of loan requests');
+  }
+
+  return response.json();
+}
+
+
 
 

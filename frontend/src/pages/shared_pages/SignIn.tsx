@@ -44,7 +44,7 @@ const SignIn =()=>
 
   return(
     <form onSubmit={onSubmit} className=" row mb-5" >
-         <h1 className="fw-bold my-3">Sign in</h1>
+         <h1 className="fw-bold text-dark">Sign in</h1>
          <div className="row">
             <label  className="form-label col-md-6">Email
               <input type="email" className="form-control"

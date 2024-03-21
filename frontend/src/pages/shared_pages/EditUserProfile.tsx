@@ -1,16 +1,16 @@
 import { useMutation, useQuery } from "react-query";
 import { useAppContext } from "../../contexts/AppContext";
 import * as apiClient from '../../api-client';
-import ManageUserForm from "../../forms/ManageUser/ManageUserForm";
+import ManageUserForm from "../../forms/UserForm/UserForm";
 import {  useNavigate } from "react-router-dom";
 
 
 
 const EditUserProfile =()=>
 {
-  const {user_id,showToast} = useAppContext();
+  const {showToast} = useAppContext();
   const navigate = useNavigate();
-  const {data: user} = useQuery("fetchUserByID", ()=> apiClient.fetchUserByID(user_id));
+  const {data: user} = useQuery("fetchCurrentUser", apiClient.fetchCurrentUser);
 
   const {mutate} = useMutation(apiClient.updateUserByID,
   {

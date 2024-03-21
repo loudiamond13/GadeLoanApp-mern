@@ -1,29 +1,3 @@
-// import { useQuery } from "react-query";
-// // import { Link } from "react-router-dom";
-// import * as apiClient from '../../api-client';
-// // import {BsFillEnvelopeFill, BsRecordCircleFill, BsTelephoneFill,BsHouseDoorFill} from 'react-icons/bs';
-// import { useAppContext } from "../../contexts/AppContext";
-// // import { UserRole } from "../../../backend/src/utilities/constants";
-// // import CustomerSearchBar from "../components/CustomerSearchBar";
-// import CustomerList from "../../components/CustomerList";
-// const Customers = () => 
-// {
-//   const {data: customerData} = useQuery("fetchCustomers", apiClient.fetchCustomers, 
-//   {
-//     onError: ()=> {},
-//   });
-
-//   const {userRole} = useAppContext();
-
-  
-//   return(
-//     <CustomerList userRole={userRole} customerData={customerData}/>
-//   );
-// };
-
-
-// export  default Customers;
-
 
 import { useState } from "react";
 import { useQuery } from "react-query";
@@ -31,64 +5,71 @@ import CustomerList from "../../components/CustomerList";
 import * as apiClient from '../../api-client';
 import { useAppContext } from "../../contexts/AppContext";
 import Pagination from "../../components/Pagination";
-import CustomerSearchBar from "../../components/CustomerSearchBar";
-import { Link } from "react-router-dom";
+import { Link} from "react-router-dom";
+import SearchBar from "../../components/SearchBar";
+
+
+
 
 const Customers = () => {
-  const {userRole} = useAppContext();
+  
+  const { userRole } = useAppContext();
   const [searchString, setSearchString] = useState('');
-  const [branch, setBranch] = useState<string>('');
   const [pageNumber, setPageNumber] = useState(1); // Initialize page number state
 
   // Fetch customers based on search string, branch, and page number
-  const {data: customerListData, isLoading } = useQuery(["fetchCustomers", searchString, branch, pageNumber], 
-                                () => apiClient.fetchCustomers(searchString, branch, pageNumber), {
+  const { data: customerListData, isLoading } = useQuery(["fetchCustomers", searchString, pageNumber], 
+                                () => apiClient.fetchCustomers(searchString, pageNumber), {
     onError: () => {},
-  });
-
+  }); 
 
   const handlePageChange = (page: number) => {
-    setPageNumber(page); // Update the page number state when the page changes
+    setPageNumber(page); // update the page number state when the page changes
   };
 
-  const handleSearch = (searchString: string, selectedBranch: string) => {
+  const handleSearch = (searchString: string,) => {
     setSearchString(searchString);
-    setBranch(selectedBranch);
-    setPageNumber(1); // Reset pagination to page 1 when search term or branch changes
+    setPageNumber(1); // reset pagination to page 1 when search term or branch changes
   };
-  
-
-  if(!customerListData)
-  {
-    return <h3 className="text-center mt-2">No Customer Found...</h3>;  
-  }
-
-  if(isLoading)
-  {
-    return <h3 className="text-center mt-2">Loading...</h3>;  
-  }
 
   return (
     <div className="row">
-       <h3 className=" text-dark">Customers</h3>
-      <div className="col-5  my-2">
-        <Link to='/create-customer' className="btn btn-md btn-dark mb-2 fw-medium " >Add Customer</Link>
-      </div>
+       <h3 className="col text-dark">Customers</h3>
+      {/* <div className="col-5 my-2">
+        <Link to='/customers/create-customer' className="btn btn-md btn-outline-dark mb-2 fw-medium">Add Customer</Link>
+      </div> */}
       <div className="col-lg justify-content-end d-flex">
-        <CustomerSearchBar onSearch={handleSearch}/>
+        <SearchBar onSearch={handleSearch}/>
       </div>
 
-      <CustomerList userRole={userRole} customerData={customerListData.customers} />
-
-      <div className="col-12 d-flex justify-content-center mt-3">
-        <Pagination
-          totalPages={customerListData.totalPages || 0}
-          currentPage={pageNumber}
-          onPageChange={handlePageChange}
-        />
+      <div className='col-12 text-center'>
+        {isLoading && <h3 className="mt-2">Loading...</h3>}
+        {!isLoading && (!customerListData || !customerListData.customers.length) && 
+        <h3 className="mt-2">No Customer Found...</h3>}
       </div>
+
+      {!isLoading && customerListData && customerListData.customers.length > 0 && (
+        <>
+          <CustomerList userRole={userRole} customerData={customerListData.customers} />
+
+          {customerListData.totalPages > 1 &&  
+          //only show the pagination when  there are more than one pages of results
+            <div className=" justify-content-center mt-3">
+              <Pagination
+                totalPages = {customerListData.totalPages || 0}
+                currentPage = {pageNumber}
+                onPageChange = {handlePageChange}
+              />
+            </div>
+          }
+          <span>
+            <Link className="btn btn-outline-dark fw-medium" to={"/"}>Back</Link>
+          </span>
+        </>
+      )}
     </div>
   );
 };
 
 export default Customers;
+

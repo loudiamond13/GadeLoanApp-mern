@@ -1,5 +1,5 @@
 import { useFormContext } from "react-hook-form";
-import { CustomerFormData } from "./ManageCustomerForm";
+import { CustomerFormData } from "./CustomerForm";
 
 const CustomerImageSection =()=>
 {
@@ -8,7 +8,7 @@ const CustomerImageSection =()=>
   const existingImage = watch('imageUrl');
 
   return(
-    <div className="row mt-2">
+    <div className="row my-3">
       <h3 className="fw-medium">Image</h3>
       <div className="col-md-6">
         {existingImage && 

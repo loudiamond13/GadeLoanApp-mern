@@ -8,7 +8,7 @@ type Props = {
   onDelete: () => void;
 }
 
-const DeleteConfirmationModal = ({ text, onDelete,title }: Props) => {
+const DeleteBtnWithConfirmationModal = ({ text, onDelete,title }: Props) => {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
@@ -20,7 +20,7 @@ const DeleteConfirmationModal = ({ text, onDelete,title }: Props) => {
 
   return (
     <>
-      <Button className='btn btn-md' variant="danger" onClick={handleShow}>
+      <Button className='btn btn-outline-danger' variant="" onClick={handleShow}>
         Delete
       </Button>
 
@@ -30,10 +30,10 @@ const DeleteConfirmationModal = ({ text, onDelete,title }: Props) => {
         </Modal.Header>
         <Modal.Body>{text}</Modal.Body>
         <Modal.Footer>
-          <Button variant="danger" onClick={handleDelete}>
+          <Button variant="" className='btn btn-outline-danger' onClick={handleDelete}>
             Delete
           </Button>
-          <Button variant="primary" onClick={handleClose}>
+          <Button variant="" className='btn btn-outline-primary' onClick={handleClose}>
             Close
           </Button>
         </Modal.Footer>
@@ -42,4 +42,4 @@ const DeleteConfirmationModal = ({ text, onDelete,title }: Props) => {
   );
 }
 
-export default DeleteConfirmationModal;
+export default DeleteBtnWithConfirmationModal;

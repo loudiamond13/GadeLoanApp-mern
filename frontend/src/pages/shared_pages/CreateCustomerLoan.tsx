@@ -1,23 +1,49 @@
-import { useMutation, useQuery } from "react-query";
-import ManageLoanTransactionForm from "../../forms/ManageTransaction/ManageLoanTransactionForm";
+import { useMutation } from "react-query";
+import LoanForm from "../../forms/LoanForm/LoanForm";
 import { useNavigate, useParams } from "react-router-dom";
 import * as apiClient from '../../api-client';
 import { useAppContext } from "../../contexts/AppContext";
+import { useEffect, useState } from "react";
+import { UserRole } from "../../../../backend/src/utilities/constants";
+import { CustomerType } from "../../../../backend/src/models/customerModel";
 
 const CreateCustomerLoan =()=>
 {
   const navigate = useNavigate();
   const {customer_id} = useParams();
-  const {data:customer} = useQuery('fetchCustomer', ()=> apiClient.fetchCustomer(customer_id || '')); 
-  const {showToast} = useAppContext();
+  const {userRole, showToast} = useAppContext();
+  const [customer, setCustomer] = useState<CustomerType>()
+
+  //fetch customer details if use is admin/employee
+  useEffect(()=>
+  {
+    if(userRole === UserRole.ADMIN || userRole === UserRole.EMPLOYEE)
+    {
+      const fetchCustomer = async() =>
+      {
+        const customerData = await apiClient.fetchCustomer(customer_id || '');
+        setCustomer(customerData)
+      }
+
+      fetchCustomer();
+    }
+  },[customer_id, userRole]);
 
 
   const {mutate} = useMutation(apiClient.createCustomerLoan,
     {
       onSuccess: ()=>
       {
-        navigate('/customers');
-        showToast({message:'Loan proccessed  successfully', type:"success"});
+        if(userRole === UserRole.CUSTOMER)
+        {
+          showToast({message:'Loan requested successfully.', type:"success"});
+          navigate('/');
+        }
+        else
+        {
+          showToast({message:'Loan proccessed successfully.', type:"success"});
+          navigate('/customers');
+        }
       },
       onError: (error: Error) =>
       {
@@ -32,7 +58,7 @@ const CreateCustomerLoan =()=>
   } 
 
 
-  return(<ManageLoanTransactionForm handleSubmitData={handleSubmit} customer={customer}/>)
+  return(<LoanForm handleSubmitData={handleSubmit} customer={customer}/>)
 }
 
 export default CreateCustomerLoan;

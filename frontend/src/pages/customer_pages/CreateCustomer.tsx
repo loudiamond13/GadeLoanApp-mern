@@ -1,22 +1,24 @@
 import { useMutation } from "react-query";
-import ManageCustomerForm from "../../forms/ManageCustomer/ManageCustomerForm";
+import ManageCustomerForm from "../../forms/CustomerForm/CustomerForm";
 import { useAppContext } from "../../contexts/AppContext";
 import * as apiClient from '../../api-client';
 
+
 const CreateCustomer = () => 
 {
+  
   const {showToast} = useAppContext();
 
   const {mutate, isLoading} = useMutation(apiClient.createCustomer, 
     {
-      onSuccess: () =>
+      onSuccess: async () =>
       {
-        showToast({message: "Customer created successfully.", type:"success"});
+        showToast({message: 'Successfully Registered.', type:"success"});
       },
-      onError: ()=>
+      onError: (error: Error)=>
       {
         
-        showToast({message: `Email might be in used/You're not authorized.` , type:'error'})
+        showToast({message: `${error}` || 'Error on creating an account.' , type:'error'})
       }
     });
 

@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import * as apiClient from  "../../api-client";
 import { useAppContext } from "../../contexts/AppContext";
+import { useNavigate } from "react-router-dom";
 
 export type RegisterFormData = 
 {
@@ -15,7 +16,7 @@ export type RegisterFormData =
 
 const CreateEmployee =() =>
 {
- 
+  const navigate = useNavigate();
   const {showToast} = useAppContext(); // toast message
   const {register, watch, handleSubmit, formState:{errors}} = useForm<RegisterFormData>();
 
@@ -28,7 +29,7 @@ const CreateEmployee =() =>
       onSuccess: async ()=>
       {
         showToast({message: "Employee Created Successfully!", type:"success"});
-        
+        navigate('/employees')
       },
       //if registration has error, send errror messsage
       onError:(error: Error) => 

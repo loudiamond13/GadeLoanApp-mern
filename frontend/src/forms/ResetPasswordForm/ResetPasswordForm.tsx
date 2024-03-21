@@ -16,7 +16,7 @@ export type ResetPasswordData =
  };
 
 
-const ManageResetPasswordForm =({onReset}: Props)=>
+const ResetPasswordForm =({onReset}: Props)=>
 {
   const {user_id, token } = useParams();
 
@@ -80,5 +80,5 @@ const ManageResetPasswordForm =({onReset}: Props)=>
   );
 }
 
-export default ManageResetPasswordForm;
+export default ResetPasswordForm;
 

@@ -1,14 +1,17 @@
 //installed multer, cloudinary
 
-
+import jwt from 'jsonwebtoken';
 import express,{Request, Response} from "express";
 import multer from 'multer';
 import cloudinary from 'cloudinary';
 import Customer, { CustomerType } from "../models/customerModel";
 import verifyToken, { isAdmin, isEmployee } from "../middleware/auth";
-import { body } from "express-validator";
+import { body, check, validationResult } from "express-validator";
 import User, { UserType } from "../models/userModel";
 import sendEmail from "../utilities/sendEmail";
+import Token from '../models/tokenModel';
+import crypto from 'crypto';
+
 
 
 const router  = express.Router();
@@ -23,24 +26,29 @@ const upload = multer({
 });
 
 
-router.post(`/`,isEmployee,
+router.post(`/register`,
 [
   //validator
-  body('firstName').notEmpty().withMessage("First name is required."),
-  body('lastName').notEmpty().withMessage("Last name is required."),
-  body('email').notEmpty().isEmail().withMessage("Email is required."),
-  body('streetAddress').notEmpty().withMessage("Street address is required."),
-  body('barangay').notEmpty().withMessage("Barangay is required."),
-  body('cityMunicipality').notEmpty().withMessage("Municipality/City is required."),
-  body('province').notEmpty().withMessage("Province is required."),
-  body('dob').notEmpty().isDate().withMessage("Date of Birth is required."),
-  body('phoneNumber').notEmpty().withMessage("Phone Number is required."),
-  body('sex').notEmpty().withMessage("Gender is required."),
-  body('branch').notEmpty().withMessage("Branch is required."),
-  body('isActive').notEmpty().isBoolean().withMessage("Active/InActive is required."),
-] ,upload.array('imageFile', 1) ,async(req: Request, res: Response) => 
+  check('firstName').notEmpty().withMessage("First name is required."),
+  check('lastName').notEmpty().withMessage("Last name is required."),
+  check('email').notEmpty().isEmail().withMessage("Email is required."),
+  check('password','Password must be at least 6 characters long and contain a number').isLength({min:6}),
+  check('streetAddress1').notEmpty().withMessage("Street address is required."),
+  check('city').notEmpty().withMessage("City is required."),
+  check('state').notEmpty().withMessage("State is required."),
+  check('postalCode').notEmpty().withMessage("Postal Code is required."),
+  check('dob').notEmpty().isDate().withMessage("Date of Birth is required."),
+  check('phoneNumber').notEmpty().withMessage("Phone Number is required."),
+  check('gender').notEmpty().withMessage("Gender is required."),
+] ,upload.array('imageFile', 1) ,async(req: Request, res: Response) =>  
 {
- 
+
+  // Check for validation errors
+  const errors = validationResult(req.body);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   try
   {
     const imageFile = req.files as Express.Multer.File[];
@@ -52,41 +60,67 @@ router.post(`/`,isEmployee,
 
     //fill the new customer
     newCustomer.imageUrl = imageURL; //if upload was successful. add the URL to the new customer
-    newCustomer.lastUpdated = new Date();
-    newCustomer.user_id = req.userId; //user that creates the new customer
+    newCustomer.createdAt = new Date();
 
     //create a new documet for customer
     const customer = new  Customer(newCustomer);
 
+    //check if email is already registered in users
+    const user = await User.findOne({email:  newCustomer.email });
+    
+    if (user){
+      return res.status(400).json({message: 'Email is already in used.'});
+    }
+
     //create a user account for the new customer
     //create a user with the same id of  the customer
-    const user = new User({
-      _id: customer._id,
+    const newUser = new User({
+      _id: customer._id,  //use  the same id as the customer has
       email: newCustomer.email.toLowerCase(),
       firstName: newCustomer.firstName.toUpperCase(), 
       lastName: newCustomer.lastName.toUpperCase(), 
       role: 'customer',
-      password: '123456'
+      password: newCustomer.password
     });
     
-    //save the new customer and its user to the DB
-    await user.save() ;
+    
+    await newUser.save();
     await  customer.save();
 
-    // send and email to the new customer containing the initial password
-    await sendEmail(user.email, 'Welcome to Gade Loan App', 
-    `<p>Hello ${user.firstName},</p>
-    <br/>
-    <p>Email: ${user.email}</p>
-    <p>Password: 123456</p>
-    <p>Please change your password immediately.</p>
-    </br>
-    <p>Thank you,</p>
-    <p>Gade Loan App</p>`);
+   //generate token for verification of account
+   const emailToken = await new Token({user_id: newUser._id , emailToken : crypto.randomBytes(32).toString("hex")}).save();
+   const url = `${process.env.FRONTEND_URL || process.env.WEB}/users/${newUser._id}/verify/${emailToken.emailToken}`;
+   //send an email for verification
+   await sendEmail(newUser.email, 'Verify Email', 
+       `<p>Hello ${newUser.firstName},</p>
+       <br/>
+       <p>Click <a href='${url}'>here</a> to verify your email. If you didn't make this request just ignore this email.</p>
+       </br>
+       <p>Thank you,</p>
+       <p>Gade Loan App</p>`); 
 
+    //if userRole is undefined/"", it means no one  is logged in so we will not set a token
+    if(!req.userRole)
+    {
+      //process a token that expires in 1day
+      //send the user role,firstname,lastname,userId to the middleware
+      const token = jwt.sign({
+            userID: newUser._id, 
+            userRole: newUser.role, 
+            userFname: newUser.firstName, 
+            userLname: newUser.lastName
+          },
+          process.env.JWT_SECRET_KEY as string, {expiresIn: '1d'});
+
+      //set the cookie
+      res.cookie(`auth_token`, token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 86400000});
+    }
 
     //return a 200/success status
-    res.status(200).send(customer);
+    return res.status(200).send({message:`Customer ${newUser.email} has been successfully registered.` });
   }
   catch(error)
   {
@@ -99,11 +133,11 @@ router.post(`/`,isEmployee,
 
 
 //get one customer by ID
-router.get(`/:id`, isEmployee, async(req:Request, res: Response)=> 
+router.get(`/:id`, verifyToken, async(req:Request, res: Response)=> 
 {
   try
   {
-    //get the customer
+    //get the customer, do not include password
     const customer = await Customer.findOne({_id: req.params.id});
 
     //if no customer is found, send error message
@@ -126,32 +160,29 @@ router.get(`/:id`, isEmployee, async(req:Request, res: Response)=>
 });
 
 
-
-router.get('/', isEmployee, async (req: Request, res: Response) => {
+//get all customer
+router.get('/', isEmployee, async (req: Request, res: Response) => { 
   try {
-      let { search, pageNum, branch } = req.query; // Get search term, page number, limit, and branch filter from query parameters
-      const query: any = {}; // Define an empty query object
+      // get search term, page number, limit, and branch filter from query parameters
+      let { search, pageNum } = req.query; 
+      const query: any = {}; // an empty query object
 
-      // If search term is provided, add search conditions to the query
-      if (search) {
-          query.$or = [
-              { firstName: { $regex: new RegExp(search as string, 'i') } }, // Case-insensitive search by first name
-              { lastName: { $regex: new RegExp(search as string, 'i') } },  // Case-insensitive search by last name
-              // Add more fields to search if needed
-          ];
-      }
-
-      // If branch filter is provided, add branch filter to the query
-      if (branch && (branch === 'Carmen' || branch === 'Buenavista')) {
-          query.branch = branch;
+      // if search term is provided, add search conditions to the query
+      if (search) 
+      {
+        query.$or = [
+            { firstName: { $regex: new RegExp(search as string, 'i')}}, // case-insensitive search by first name
+            { lastName: { $regex: new RegExp(search as string, 'i')}},  // case-insensitive search by last name
+            { email:  {$regex: new RegExp(search as string, 'i')}} //and email
+        ];
       }
 
 
       const pageSize = 5;
       const page = pageNum ? parseInt(pageNum.toString()) : 1; // set the default page number to page 1
 
-      // Perform pagination using skip and limit
-      const skip = (page - 1) * pageSize; // Calculate the number of documents to skip
+      // perform pagination using skip and limit
+      const skip = (page - 1) * pageSize; // calculate the number of documents to skip
       const totalCount = await Customer.countDocuments(query); // Get the total count of documents that match the query
       const customers = await Customer.find(query)
           .sort({ firstName: 1 }) // Sort by firstName in default
@@ -159,46 +190,50 @@ router.get('/', isEmployee, async (req: Request, res: Response) => {
           .limit(pageSize); // Limit the number of documents per page
 
       // Return the paginated customers and metadata
-      res.json({
-          totalCount,
-          totalPages: Math.ceil(totalCount / pageSize), // Calculate the total number of pages
-          currentPage: page,
-          customers,
-      });
+      return res.json({
+              totalCount,
+              totalPages: Math.ceil(totalCount / pageSize), // Calculate the total number of pages
+              currentPage: page,
+              customers,
+            });
+
   } catch (error) {
-      res.status(500).json({ message: 'Failed to load customers.' });
+      return res.status(500).json({ message: 'Failed to load customers.' });
   }
 });
 
 
-// // get all customer
-// router.get('/', isEmployee, async (req:Request,res:Response) =>
-// {
- 
-//   try
-//   {
-//     const  customers = await Customer.find().sort("lastName");//sort by first Name 
-//     res.json(customers);
-//   }
-//   catch(error)
-//   {
-//     res.status(500).json({message:`Failed to load customers.`})
-//   }
-// });
-
-router.put(`/:customer_id`, isAdmin, upload.array('imageFile',1), async(req:Request,res:Response)=>
+//updating customer
+router.put(`/:customer_id`, verifyToken, upload.array('imageFile',1), async(req:Request,res:Response)=>
 {
   try
   {
     const updatedCustomer: CustomerType = req.body;
     updatedCustomer.lastUpdated = new Date();
     console.log(req.params.customer_id);
+
+    //find and update the customer
     const customer = await Customer.findOneAndUpdate({_id: req.params.customer_id}, updatedCustomer, {new:true});
 
     if(!customer)
     {
-      return  res.status(400).json({message:`No Customer Found!`});
+      return  res.status(404).json({message:`No Customer Found!`});
     }
+
+    //find the customers user acc
+    const userCustomer = await User.findById({_id: customer._id});
+    if(!userCustomer)
+    {
+      return res.status(404).json({message: 'Customer user account  not found!'});
+    }
+    else
+    {
+      //update the first  name and last name of the customer user  account
+      userCustomer.firstName = customer.firstName;
+      userCustomer.lastName = customer.lastName;
+      userCustomer.save();
+    }
+
 
     const imageFile = req.files as Express.Multer.File[];
 
@@ -217,6 +252,7 @@ router.put(`/:customer_id`, isAdmin, upload.array('imageFile',1), async(req:Requ
       customer.imageUrl = updatedImageURL;
     }
 
+    customer.lastUpdated = new Date();
 
     await customer.save();
 

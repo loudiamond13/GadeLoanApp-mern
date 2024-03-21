@@ -37,7 +37,7 @@ router.post('/login', [
     const { email, password } = req.body;
     try {
         //find the  user by the provided email
-        const user = yield userModel_1.default.findOne({ email });
+        const user = yield userModel_1.default.findOne({ email: email.toLowerCase() });
         //if there is no user  with such email - send error message
         if (!user) {
             return res.status(400).json({ message: 'Invalid email/password.' });
@@ -48,6 +48,10 @@ router.post('/login', [
         // if not matched  - send an error to the client
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid email/password.' });
+        }
+        //check if user is locked
+        if (user.isLocked) {
+            return res.status(423).json({ message: 'Your account is locked. Please contact an admin.' });
         }
         //create a jwt token for authentication 
         const token = jsonwebtoken_1.default.sign({ userID: user.id, userRole: user.role, userFname: user.firstName, userLname: user.lastName }, process.env.JWT_SECRET_KEY, { expiresIn: "1d" });

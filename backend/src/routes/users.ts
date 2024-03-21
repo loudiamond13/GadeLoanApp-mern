@@ -1,5 +1,5 @@
 
-import {check, param, validationResult} from 'express-validator';
+import {check, validationResult} from 'express-validator';
 import express,{Request, Response} from 'express';
 import User from '../models/userModel';
 import jwt from 'jsonwebtoken';
@@ -9,8 +9,9 @@ import Token from '../models/tokenModel';
 import sendEmail from '../utilities/sendEmail';
 import crypto from 'crypto';
 import multer from 'multer';
-import { json } from 'body-parser';
 import { UserRole } from '../utilities/constants';
+import Customer from '../models/customerModel';
+import Loan from '../models/loanModel';
 const upload = multer();
 
 const router = express.Router();
@@ -25,7 +26,7 @@ router.post(`/register`,[
 ],async (req:Request, res: Response) => {
   
   // get the errors if there is any
-  const errors = validationResult(req);
+  const errors = validationResult(req.body);
   //if errors is not empty then store the errors into json array
   if (!errors.isEmpty()) 
   {
@@ -39,7 +40,7 @@ router.post(`/register`,[
     //if user email exists
     if(user)
     {
-      console.log(`Email ${user.email} already Exist.`)
+      console.log(`Email ${user.email} already exists.`)
       return res.status(400).json({message:`Email already exists.`});
     }
 
@@ -61,8 +62,13 @@ router.post(`/register`,[
     
 
     //process the  token
-    const token = jwt.sign({userID: user._id, userRole: user.role}, 
-      process.env.JWT_SECRET_KEY as string, 
+    const token = jwt.sign({
+        userID: user._id, 
+        userRole: user.role,
+        userFname: user.firstName, 
+        userLname: user.lastName
+      }, 
+        process.env.JWT_SECRET_KEY as string, //secet key
       {expiresIn: '1d'}); //token expiration
 
     //send/set cookie
@@ -81,6 +87,27 @@ router.post(`/register`,[
     console.log('Error in registering a user', error);
     //make the error status message error, it might contain private information 
     res.status(500).send({message:`Something went wrong.`});
+  }
+});
+
+//gets the current user
+router.get('/current-user', verifyToken, async(req:Request,res:Response)=>
+{
+  const user_id = req.userId;
+  try
+  {
+    let user = await User.findById(user_id).select("-password");
+    if(!user) 
+    {
+      return res.status(404).json({message:"No user found."});
+    }
+    
+    return res.json(user);
+  }
+  catch (error)
+  {
+    console.log(error);
+    res.status(500).json({ message: "something went wrong" });
   }
 });
 
@@ -143,27 +170,37 @@ router.post(`/create-employee`,[
 //deletes a user
 router.delete(`/:id`, isAdmin, async(req: Request, res: Response)=>
 {
-  //emplyee id
-  const  employee_id= req.params.id;
 
   try 
   {
-    const toBeDeletedEmployee = await User.findOne({_id: employee_id, role:UserRole.EMPLOYEE});
+    //user id
+    const  user_id= req.params.id;
+
+    const toBeDeletedUser = await User.findOne({_id: user_id});
 
     //check if  there are any records returned by this query
-    if(!toBeDeletedEmployee)
+    if(!toBeDeletedUser)
     {
-      return res.status(400).json({message:'Employee not found'});
+      return res.status(400).json({message:'User not found'});
     }
 
-   await toBeDeletedEmployee.deleteOne(); // delete employee
+    //check if the user is customer
+    //if user is a customer. delete its customer document as well
+    if(toBeDeletedUser.role === UserRole.CUSTOMER)
+    {
+      // delete the customer
+      await Customer.deleteOne({_id: toBeDeletedUser._id}); 
+      //delete the customer loans as well
+      await Loan.deleteMany({customer: toBeDeletedUser._id});
+    }
+
+    await toBeDeletedUser.deleteOne(); // delete user
 
     // Send a success response
-    res.status(200).json({ message: 'Employee deleted successfully' });
+    res.status(200).json({ message: 'User deleted successfully' });
   } 
   catch (error) 
   {
-    console.log(error);
     return res.status(500).json({message:'Server Error'});
   }
 
@@ -178,7 +215,8 @@ router.put('/lock-unlock/:id', async (req, res) => {
   try {
     // Find the employee by ID
     const employee = await User.findById(employeeId);
-    if (!employee) {
+    if (!employee) 
+    {
       return res.status(404).json({ message: 'Employee not found' });
     }
 
@@ -187,39 +225,72 @@ router.put('/lock-unlock/:id', async (req, res) => {
     {
       employee.isLocked = true;
       await employee.save();
-      res.json({ message: 'Employee locked successfully' });
+      return res.json({ message: 'Employee locked successfully' });
     } 
     else if (action === 'unlock') 
     {
       employee.isLocked = false;
       await employee.save();
-      res.json({ message: 'Employee unlocked successfully' });
+      return res.json({ message: 'Employee unlocked successfully' });
     } 
     else 
     {
-      res.status(400).json({ message: 'Invalid action' });
+      return res.status(400).json({ message: 'Invalid action' });
     }
     
   } catch (error) {
     console.error('Error locking/unlocking employee:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 });
 
     
 
-//get all employee user
-router.get(`/employees`, isAdmin, async(req: Request, res: Response) => 
-{
-  const employee = await User.find({role: 'employee'}).sort({firstName: -1}); // sort by firstname a-z
-  
-  //check if there is employee found
-  if(!employee)
+//get all user
+router.get(`/users`, isAdmin, async(req: Request, res: Response) => 
+{ 
+  try 
   {
-    return res.status(404).json({message:'No employees found.'});
-  }
+    let {search, role, pageNum} = req.query;
+    const query: any = {};
+    
+    if(search)
+    {
+      query.$or = 
+      [
+        //case sensitive  search for first name, last name, or email
+        {firstName: {$regex: new RegExp(search as string, 'i')}},
+        {lastName: {$regex: new RegExp(search as string, 'i')}},
+        {email: {$regex: new RegExp(search as string, 'i')}}
+      ];
+    };
 
-  return res.status(200).json(employee);
+    if(role)
+    {
+      query.role = role;
+    }
+
+    const pageSize = 5; //page size
+    const page = pageNum ? parseInt(pageNum.toString()) : 1; //set default page number to 1
+
+    const skip = (page - 1) * pageSize; //number of document to skip
+    const totalCount = await User.countDocuments(query);
+    const users = await User.find(query)
+          .sort({firstName: 1})
+          .skip(skip)
+          .limit(pageSize);
+
+    return res.json({
+          totalCount,
+          totalPages: Math.ceil(totalCount / pageSize),
+          currentPage: page,
+          users
+    });
+  } 
+  catch (error) 
+  {
+    return res.status(500).json({message:"Internal Server Error."});
+  }
 });
 
 
@@ -278,6 +349,19 @@ router.put(`/:user_id`, verifyToken, upload.none() ,async(req:Request, res: Resp
         }
         else
         {
+          //check if user is customer, if user is customer, change the email as well in customer db
+          if(user.role === UserRole.CUSTOMER)
+          {
+            const updatedCustomer = await  Customer.findByIdAndUpdate(
+              user._id, 
+              {email : updatedUser.confirmNewEmail}, 
+              {new:true});
+
+            if(!updatedCustomer) // check if it was successful
+            {
+              return res.status(404).json({message: 'Failed to update customer.'});
+            }
+          }
           //set emailVerified to false and save to update the field
           user.emailVerified=false;
           user.email = updatedUser.confirmNewEmail;
@@ -318,8 +402,10 @@ router.put(`/:user_id`, verifyToken, upload.none() ,async(req:Request, res: Resp
 router.post('/:user_id/verify/:token', async (req:Request,res:Response)=>
 {
   try {
+
     //find the token using the passed in token from params
     const token = await Token.findOne({user_id: req.params.user_id, emailToken: req.params.token});
+
 
     //check if there is token
     if(!token)
@@ -329,6 +415,7 @@ router.post('/:user_id/verify/:token', async (req:Request,res:Response)=>
 
     //get the user from db using the passed in id
     const user = await User.findOne({_id: req.params.user_id});
+    
     //check if there is user 
     if (!user)
     {
@@ -351,12 +438,14 @@ router.post('/:user_id/verify/:token', async (req:Request,res:Response)=>
 
 
 //resend the email verification
-router.post('/resend-verification/:user_id',verifyToken ,async (req:Request, res:Response)=>
+router.post('/resend-verification',verifyToken ,async (req:Request, res:Response)=>
 {
   try 
   {
+    const user_id = req.userId;
+
     //find the user
-    const user = await User.findOne({_id:  req.params.user_id});
+    const user = await User.findOne({_id: user_id});
     if(!user)
     {
       return res.status(400).json({message: 'No User Found'});
@@ -411,9 +500,19 @@ router.post('/resend-verification/:user_id',verifyToken ,async (req:Request, res
 
 //send link for forgot password
 router.post('/forgot-password/',
-check('email', "Email is Required").isEmail()
+[
+  check('email', "Email is Required").isEmail()
+]
 ,upload.none() ,async (req:Request,res:Response) =>
 {
+  // get the errors if there is any
+  const errors = validationResult(req.body);
+  //if errors is not empty then store the errors into json array
+  if (!errors.isEmpty()) 
+  {
+    return res.status(400).json({message: errors.array()});
+  }
+
   try {
 
     const {email} = req.body; 

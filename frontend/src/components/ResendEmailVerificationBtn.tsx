@@ -4,13 +4,12 @@ import * as apiClient from '../api-client';
 import { useAppContext } from "../contexts/AppContext";
 import { Link } from "react-router-dom";
 
-type Props = {user_id: string;}
 
-const ResendVerificationBtn = ({user_id}:Props) => 
+const ResendVerificationBtn = () => 
 {
   const {showToast} = useAppContext();
   
-  const mutation = useMutation(()=> apiClient.resendEmailVerification(user_id),
+  const mutation = useMutation(()=> apiClient.resendEmailVerification(),
   {
     onSuccess: async()=>
     {
@@ -27,7 +26,7 @@ const ResendVerificationBtn = ({user_id}:Props) =>
     mutation.mutate();
   }
 
-  return(<Link to='#' onClick={handleClick}>Resend Verification Email</Link>);
+  return(<Link to='#' onClick={handleClick}>Resend Verification Email.</Link>);
 
 }
 

@@ -25,7 +25,7 @@ type Props =
   onSave: (userFormData:FormData) => void;
 }
 
-const ManageUserForm=({onSave, user}: Props)=>
+const UserForm=({onSave, user}: Props)=>
 {
   const formMethods = useForm<UserFormData>();
   const {reset, handleSubmit} = formMethods;
@@ -44,12 +44,9 @@ const ManageUserForm=({onSave, user}: Props)=>
       formData.append('user_id', user?._id);
     }
 
-
     formData.append('confirmNewEmail', formdataJson.confirmNewEmail);
     formData.append('currentPassword', formdataJson.currentPassword);
     formData.append('confirmNewPassword', formdataJson.confirmNewPassword);
-    formData.append('firstName', formdataJson.firstName);
-    formData.append('lastName', formdataJson.lastName);
 
     onSave(formData);
   });
@@ -69,4 +66,4 @@ const ManageUserForm=({onSave, user}: Props)=>
   );
 }
 
-export default ManageUserForm;
+export default UserForm;

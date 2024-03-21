@@ -29,7 +29,7 @@ const sendEmail = (email, subject, text) => __awaiter(void 0, void 0, void 0, fu
             from: process.env.EMAIL_USERNAME,
             to: email,
             subject: subject,
-            text: text,
+            html: text,
         });
         console.log('email sent');
     }

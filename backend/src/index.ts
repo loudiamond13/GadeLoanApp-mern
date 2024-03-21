@@ -11,7 +11,7 @@ import {v2 as cloudinary} from  'cloudinary';
 import {UserRoutes} from './routes/users';
 import {authenticationRoute} from './routes/auth';
 import { createCustomerRouter } from './routes/customers';
-import { transactionRouter } from './routes/transactions';
+import { loanRouter } from './routes/loans';
 
 
 
@@ -47,8 +47,8 @@ app.use("/api/auth", authenticationRoute);
 // /api/users/
 app.use("/api/users", UserRoutes);
 app.use('/api/customers', createCustomerRouter);
-app.use('/api/transactions', transactionRouter);
-
+app.use('/api/loans', loanRouter);
+ 
 
 app.get('*', (req:Request, res:Response)=> 
 {

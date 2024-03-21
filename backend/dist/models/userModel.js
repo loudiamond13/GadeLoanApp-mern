@@ -21,11 +21,10 @@ const userSchema = new mongoose_1.default.Schema({
     password: { type: String, required: true },
     lastName: { type: String, required: true },
     firstName: { type: String, required: true },
-    role: { type: String, enum: ['admin', 'employee', 'user'], default: 'user' }, //by default a user is just a regular user
+    role: { type: String, enum: ['admin', 'employee', 'customer'], default: 'admin' }, //by default a user is just a regular user
     emailVerified: { type: Boolean, default: false },
+    isLocked: { type: Boolean, default: false },
 });
-//user model
-const User = mongoose_1.default.model("User", userSchema);
 //encrypt the user password if changed/new password
 userSchema.pre('save', function (next) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -35,4 +34,6 @@ userSchema.pre('save', function (next) {
         next();
     });
 });
+//user model
+const User = mongoose_1.default.model("User", userSchema);
 exports.default = User;

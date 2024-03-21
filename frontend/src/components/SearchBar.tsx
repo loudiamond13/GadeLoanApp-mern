@@ -5,13 +5,13 @@ type Props =
   onSearch:(searchString: string)=>void;
 }
 
-const EmployeeSearchBar =({onSearch}: Props)=>
+const SearchBar =({onSearch}: Props)=>
 {
   const [searchString, setSearchString] = useState('');
   
   const handleSubmit = (event: FormEvent) =>
   {
-    event.preventDefault();
+    event.preventDefault(); 
     onSearch(searchString);
   }
 
@@ -22,7 +22,7 @@ const EmployeeSearchBar =({onSearch}: Props)=>
          <input type="text" value={searchString} placeholder="Search..." className="form-control" aria-label="Search"
          onChange={(event)=> setSearchString(event.target.value)}/>
        </div>
-        <div className="col-3 me-3">
+        <div className="col-3 me-2">
           <button type="submit" className="btn-outline-dark btn ">
             Search
           </button>
@@ -33,4 +33,4 @@ const EmployeeSearchBar =({onSearch}: Props)=>
 }
 
 
-export default  EmployeeSearchBar;
+export default  SearchBar;

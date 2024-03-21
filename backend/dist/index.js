@@ -15,7 +15,7 @@ const cloudinary_1 = require("cloudinary");
 const users_1 = require("./routes/users");
 const auth_1 = require("./routes/auth");
 const customers_1 = require("./routes/customers");
-const transactions_1 = require("./routes/transactions");
+const loans_1 = require("./routes/loans");
 //connection to cloudinary
 cloudinary_1.v2.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -39,7 +39,7 @@ app.use("/api/auth", auth_1.authenticationRoute);
 // /api/users/
 app.use("/api/users", users_1.UserRoutes);
 app.use('/api/customers', customers_1.createCustomerRouter);
-app.use('/api/transactions', transactions_1.transactionRouter);
+app.use('/api/loans', loans_1.loanRouter);
 app.get('*', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, "../../frontend/dist/index.html"));
 });

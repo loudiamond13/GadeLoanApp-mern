@@ -47,9 +47,9 @@ const Register =() =>
   });
 
   return(
-     
       <form className=" row mb-5" onSubmit={onSubmit}>
-         <h1 className="fw-bold">Create An Account</h1>
+         <h1 className="fw-bold text-dark">Create An Account</h1>
+         <h5 className="text-danger">This is a temporary registration page for admin.(for testing purposes)</h5>
          <div className="row">
             <label  className="form-label col-md-6">First Name
               <input type="text" className="form-control" 

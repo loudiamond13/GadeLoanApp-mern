@@ -1,21 +1,34 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAppContext } from "../../contexts/AppContext";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import * as apiClient from '../../api-client';
-import ManageCustomerForm from "../../forms/ManageCustomer/ManageCustomerForm";
+import CustomerForm from "../../forms/CustomerForm/CustomerForm";
+import { UserRole } from "../../../../backend/src/utilities/constants";
 
 const EditCustomer =()=>
 {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const {customer_id} = useParams();
-  const {showToast} = useAppContext();
+  const {showToast , userRole} = useAppContext();
 
   const {data: customer} = useQuery('fetchCustomer',()=> apiClient.fetchCustomer(customer_id || ''));
 
-  const {mutate, isLoading } = useMutation(apiClient.updateCustomer, 
+  const {mutate, isLoading } = useMutation(apiClient.updateCustomer,
   {
-    onSuccess:()=>
+    onSuccess:async()=>
     {
-      showToast({message: `The customer has been updated`, type:'success'});
+      await queryClient.invalidateQueries('fetchCurrentUser');
+      if(userRole ===  UserRole.CUSTOMER)
+      {
+        showToast({message: 'Profile updated successfully.', type: 'success'});
+        navigate('/');
+      }
+      else
+      {
+        showToast({message: `The customer has been updated.`, type:'success'});
+        navigate('/customers')
+      }
     },
     onError:()=>
     {
@@ -28,7 +41,7 @@ const EditCustomer =()=>
     mutate(customerFormData)
   }
 
- return(<ManageCustomerForm customer={customer} onCreate={handleSubmit} isLoading={isLoading}/>);
+ return(<CustomerForm customer={customer} onCreate={handleSubmit} isLoading={isLoading}/>);
 };
 
 
