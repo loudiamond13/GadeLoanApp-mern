@@ -3,27 +3,33 @@ import AdminHomePage from "../../components/AdminHomePage";
 import { useAppContext } from "../../contexts/AppContext";
 import CustomerHomePage from "../../components/CustomerHomePage";
 import EmployeeHomePage from "../../components/EmployeeHomePage";
+import MainPage from "../../components/MainPage";
 
 
 
 
 const Home =()=>
 {
-  const {userRole} = useAppContext();
+  const {userRole, isLoggedIn} = useAppContext();
 
-  if(userRole === UserRole.CUSTOMER)
+  if(isLoggedIn && userRole === UserRole.CUSTOMER)
   {
     return(<CustomerHomePage/>);
   }
 
-  if(userRole === UserRole.ADMIN)
+  else if(isLoggedIn && userRole === UserRole.ADMIN)
   {
     return(<AdminHomePage/>)
   }
 
-  if(userRole === UserRole.EMPLOYEE)
+  else if(isLoggedIn && userRole === UserRole.EMPLOYEE)
   {
     return(<EmployeeHomePage/>)
+  }
+
+  else
+  {
+    return(<MainPage/>)
   }
 
 }

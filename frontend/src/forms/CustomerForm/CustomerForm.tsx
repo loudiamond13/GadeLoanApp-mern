@@ -46,7 +46,7 @@ type Props =
 const CustomerForm =({onCreate,isLoading,customer}: Props) =>
 {
   const navigate = useNavigate();
-  const {userRole, showToast} = useAppContext();
+  const {isLoggedIn, userRole, showToast} = useAppContext();
   const queryClient = useQueryClient();
   const  formMethods = useForm<CustomerFormData>();
   const {handleSubmit,reset} = formMethods;
@@ -130,7 +130,7 @@ useEffect(()=>
           </span>
         }
         <span>
-          <Link to={userRole !== UserRole.CUSTOMER ? '/customers': '/'} className='btn btn-dark'>Back</Link>
+          <Link to={isLoggedIn && userRole !== UserRole.CUSTOMER ? '/customers': '/'} className='btn btn-dark'>Back</Link>
         </span>
       </form>
       </FormProvider>

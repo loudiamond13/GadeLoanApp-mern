@@ -19,7 +19,7 @@ const LogOutBtn = () =>
         
         navigate(`/sign-in`);
         //show toast
-        showToast({type:"success", message:"Logged out successfully"});
+        showToast({type:"success", message:"Logged out successfully."});
         
       },
       onError: (error: Error) =>
