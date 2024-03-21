@@ -92,7 +92,7 @@ const PaymentForm=({paymentData, paymentIntent, customer}:Props)=>
                 <label htmlFor=""> Name: 
                   <input type="text" className="form-control" value={`${customer?.firstName} ${customer?.lastName}`} disabled/>
                 </label>
-              <p className="my-2">Amount Due: ${numberWithCommas(paymentData?.amount)}</p>
+              <p className="my-2 text-dark">Amount Due: ${numberWithCommas(paymentData?.amount)}</p>
             </div>
             <div className="form-group">
               <label>Email:</label>

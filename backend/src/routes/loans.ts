@@ -174,36 +174,36 @@ router.get('/:customer_id', verifyToken, async (req: Request, res: Response) => 
 });
 
 
-// //get  a single loan payment by id 
-// router.get('/:customer_id/payment/:paymentTransaction_id', verifyToken, async(req:Request,res:Response)=>
-// {
-//   try 
-//   {
-//     const customer_id = req.params.customer_id;
-//     const paymentTransaction_id = req.params.paymentTransaction_id;
+ //get  a single loan payment by id 
+ router.get('/:customer_id/payment/:paymentTransaction_id', verifyToken, async(req:Request,res:Response)=>
+ {
+   try 
+   {
+     const customer_id = req.params.customer_id;
+     const paymentTransaction_id = req.params.paymentTransaction_id;
 
-//     // find the transaction document matching the customer_id and paymentTransaction_id
-//     const loan = await Loan.findOne(
-//       {
-//         customer: customer_id, 
-//         'paymentTransactions._id': paymentTransaction_id
-//       },
-//       {
-//         'paymentTransactions.$': 1 // Projection to return only the matching payment transaction
-//       }
-//     );
+     // find the transaction document matching the customer_id and paymentTransaction_id
+     const loan = await Loan.findOne(
+       {
+         customer: customer_id, 
+         'paymentTransactions._id': paymentTransaction_id
+       },
+       {
+         'paymentTransactions.$': 1 // Projection to return only the matching payment transaction
+       }
+     );
 
-//     if (!loan) 
-//     {
-//       res.status(404).json({message:'No Payment Found.'});
-//     }
-//     return res.status(200).json(loan?.paymentTransactions[0]);
-//   } 
-//   catch (error) 
-//   {
-//     return res.status(500).json({message: 'Internal Server Error.'})  
-//   }
-// });
+     if (!loan) 
+     {
+       res.status(404).json({message:'No Payment Found.'});
+     }
+     return res.status(200).json(loan?.paymentTransactions[0]);
+   } 
+   catch (error) 
+   {
+     return res.status(500).json({message: 'Internal Server Error.'})  
+   }
+ });
 
 //creates payment intent
 router.post('/:customer_id/payment-intent/:paymentTransaction_id', verifyToken, async(req: Request, res:Response)=>
