@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import bcrypt from 'bcryptjs';
 
 export type CustomerType = 
 {
@@ -43,14 +42,7 @@ const customerSchema = new mongoose.Schema<CustomerType>
   createdAt:{type: Date}
 });
 
-// //encrypt the user password if changed/new password
-// customerSchema.pre('save', async function(next) 
-// {
-//   if(this.isModified('password')){
-//   this.password = await bcrypt.hash(this.password, 8)
-//   }
-//   next();
-// });
+
 
 
 const Customer = mongoose.model<CustomerType>("Customer", customerSchema);
