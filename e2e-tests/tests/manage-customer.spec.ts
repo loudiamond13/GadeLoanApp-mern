@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import path from 'path';
 
 const UI_URL = 'http://localhost:5173/';
 
@@ -8,7 +7,7 @@ test.beforeEach(async({page}) =>
   await page.goto(UI_URL);
 
   // Click on "Sign In" button
-  await page.getByRole(`link`, {name: 'Sign In'}).click();
+  await page.click('text=Sign In');
 
 
   await expect(page.getByRole('heading', {name: 'Sign In'})).toBeVisible();
@@ -22,80 +21,125 @@ test.beforeEach(async({page}) =>
 
   await expect(page.getByText(`Signed in Successfully!`)).toBeVisible();
 
+  //expects the headers
   await expect(page.getByRole(`link`, {name: `Home`})).toBeVisible();
-  await expect(page.getByRole(`link`, {name: `Customers`})).toBeVisible();
-  await expect(page.getByRole(`link`, {name: `Create Employee`})).toBeVisible();
-  await expect(page.getByRole(`button`, {name: `Log Out`})).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Customers', exact: true })).toBeVisible();
+  await expect(page.getByRole(`link`, {name: `Loan Requests`, exact:true})).toBeVisible();
+  await expect(page.getByRole(`link`, {name: `Users`, exact: true})).toBeVisible();
+
+  await expect(page.getByRole(`button`, {name: `Log out`, exact: true})).toBeVisible();
+
+
 });
 
 
-test(`should allow admin/employee to add  a new creditor/customer with valid data`, async ({page})=>
-{
-  const testEmail = `test_register_${Math.floor(Math.random() * 9999)}@example.com`;
-
-  await page.goto( `${UI_URL}`);
-  
-  await page.getByRole(`link`, {name: 'Customers'}).click();
-
-  await page.getByRole('link', {name: 'Add Customer'}).click();
-
-  await page.locator(`[name='firstName']`).fill(`John`);
-  await page.locator(`[name='lastName']`).fill('Doe');
-  await page.locator(`[name='email']`).fill(testEmail);
-  await page.locator(`[name='streetAddress']`).fill('Test Address street');
-  await page.locator(`[name='barangay']`).fill('Test barangay');
-  await page.locator(`[name='cityMunicipality']`).fill('Test municipality');
-  await page.locator(`[name='province']`).fill('Test province');
-  await page.locator(`[name='dob']`).fill('2000-08-19');
-  await page.locator(`[name='phoneNumber']`).fill('091234567899');
-  await page.selectOption(`select[name='sex']`, 'Female');
-  await page.selectOption(`select[name='branch']`,'Carmen');
-
-  await page.setInputFiles('[name="imageFile"]', path.join(__dirname, 'files', '1.jpg'));
-
-  await page.getByRole('button', {name: "Create Customer"}).click();
-
-  await expect(page.getByText(`Customer created successfully.`)).toBeVisible();
-});
 
 test('Should allow the admin/employee to  make a loan', async({page}) =>
 {
   await page.goto( `${UI_URL}`);
   
-  await page.getByRole(`link`, {name: 'Customers'}).click();
+  await page.getByRole(`link`, {name: 'Customers', exact: true}).click();
 
-  await expect(page.getByRole(`link`, {name: `Add Customer`})).toBeVisible();
+  await expect(page.getByRole(`button`, {name: `Search`})).toBeVisible();
  
-  //click the payment/loan button
-  await page.getByText('Make a Payment/Loan').first().click();
+  //click the loan button
+  await page.getByText('Make a Loan').first().click();
+
+  //expect the header
+  await expect(page.getByRole(`heading`, {name: `Create Customer Loan`})).toBeVisible();
 
   //set loan
-  await page.locator(`[name='amount']`).fill(`1000.50`);
+  await page.locator(`[name='amount']`).fill(`15000.00`);
 
-  await page.selectOption(`select[name='transaction_code']`, 'Loan');
 
-  await page.getByRole(`button`, {name: 'Process'}).click();
 
+  await page.getByRole(`button`, {name: 'Process Loan'}).click();
+
+  //expect the toaster to be successful
+  await expect(page.getByText(`Loan proccessed successfully.`)).toBeVisible();
 });
 
-test('Should allow the admin/employee to  make a payment', async({page}) =>
+test('Should allow the admin/employee to make a payment for a customer', async({page}) =>
 {
   await page.goto( `${UI_URL}`);
   
-  await page.getByRole(`link`, {name: 'Customers'}).click();
+  await page.getByRole(`link`, {name: 'Customers', exact: true}).click();
 
-  await expect(page.getByRole(`link`, {name: `Add Customer`})).toBeVisible();
+  await expect(page.getByRole(`button`, {name: `Search`})).toBeVisible();
 
-  //click the payment/loan button
-  await page.getByText('Make a Payment/Loan').first().click();
+  //click the payment button
+  await page.getByText('Make Payment').first().click();
 
-  //set payments
-  await page.locator(`[name='amount']`).fill(`1000`);
 
-  await page.selectOption(`select[name='transaction_code']`, 'Pay');
+  //click the first accordion that is active
+  await page.getByRole(`heading`, {name: 'Active'}).first().click();
 
-  await page.getByRole(`button`, {name: 'Process'}).click();
+  //click pay now
+  await page.getByRole(`link`, {name: 'Pay now'}).first().click();
+
+  //expect the heading
+  await expect(page.getByRole(`heading`, {name: `Payment Details`})).toBeVisible();
+
+  //get the first iframe and fill the card number, mm/yy, cvv fields and zip for the card info
+  const stripeFrame = page.frameLocator("iframe").first();
+  await stripeFrame.locator('[placeholder="Card number"]').fill("4242424242424242");
+  await stripeFrame.locator('[placeholder="MM / YY"]').fill("04/30");
+  await stripeFrame.locator('[placeholder="CVC"]').fill("424");
+  await stripeFrame.locator('[placeholder="ZIP"]').fill("42424");
+
+  //click the payment button
+  await page.click('text=Confirm Payment');
+  await page.dblclick('text=Confirm Payment');
+  await page.dblclick('text=Confirm Payment');
+  await page.dblclick('text=Confirm Payment');
+
+  //expect the payment to be successful
+  await expect(page.getByText(`Payment successful`)).toBeVisible();
 
 });
+
+test(`admin/employee should be able to view customer loan list`, async({page})=>
+{
+  await page.goto( `${UI_URL}`);
+  
+  await page.getByRole(`link`, {name: 'Customers', exact: true}).click();
+
+  await expect(page.getByRole(`button`, {name: `Search`})).toBeVisible();
+
+  //click the payment button
+  await page.getByText('View Loans').first().click();
+
+  await expect(page.getByText(`Customer Loans`)).toBeVisible();
+
+  await expect(page.getByRole('button', {name: `Filter`})).toBeVisible();
+
+});
+
+
+test(`admin/employee should be able to edit customer loan list`, async({page})=>
+{
+  await page.goto( `${UI_URL}`);
+  
+  await page.getByRole(`link`, {name: 'Customers', exact: true}).click();
+
+  await expect(page.getByRole(`button`, {name: `Search`})).toBeVisible();
+
+  //click the payment button
+  await page.getByText('Edit Customer').first().click();
+
+  await expect(page.getByRole('heading', {name: `Edit Customer`})).toBeVisible();
+
+  await page.locator(`[name=firstName]`).fill("Test");
+
+  await page.locator(`[name=lastName]`).fill("Customer");
+
+  await page.getByText('Update Customer').click();
+  
+
+  //expect the update/edit to be successful
+  await expect(page.getByText(`The customer has been updated.`)).toBeVisible();
+
+});
+
 
 

@@ -116,7 +116,7 @@ useEffect(()=>
         <span>
           <button disabled={isLoading} type="submit" className="btn btn-dark  me-2">
             {isLoading ? "Saving..." : (userRole === UserRole.CUSTOMER ? "Update Profile" 
-                : (customer ? "Update Customer" : "Create Customer"))}
+                : (customer ? "Update Customer" : "Register"))}
           </button>
 
         </span>

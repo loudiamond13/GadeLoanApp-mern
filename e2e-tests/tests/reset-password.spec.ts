@@ -7,11 +7,12 @@ test('user/admind/employee should be able to forget password and send token/emai
 {
   await page.goto(UI_URL);
 
-  await page.getByRole(`link`, {name: 'Sign In'}).click();
+  // Click on "Sign In" button
+  await page.click('text=Sign In');
 
   await page.getByRole(`link`, {name: 'Forgot Password?'}).click();
 
-  await page.locator(`[name=email]`).fill("slinkyman127@gmail.com");
+  await page.locator(`[name=email]`).fill("test_customer_register_8257@example.com");
 
   await page.getByRole('button',{ name:'Forgot Password' }).click();
 

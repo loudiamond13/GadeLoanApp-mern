@@ -8,10 +8,10 @@ test(`should allow user resend email  verification`, async ({ page }) =>
   await page.goto(UI_URL);
 
   // Click on "Sign In" button
-  await page.getByRole(`link`, {name: 'Sign In'}).click();
+  await page.click('text=Sign In');
 
 
-  await expect(page.getByRole('heading', {name: 'Sign In'})).toBeVisible();
+  await expect(page.getByRole('heading', {name: 'Sign in', exact: true})).toBeVisible();
 
   //fill the password and email for test
   await page.locator(`[name=email]`).fill("wawa@gmail.com");
@@ -27,7 +27,7 @@ test(`should allow user resend email  verification`, async ({ page }) =>
 
   await page.getByRole(`link`, {name: 'Hello, admin Lou Loyloy'}).click();
 
-  await page.getByRole(`link`, {name: 'Resend Verification Email'}).click();
+  await page.getByRole(`link`, {name: 'Resend Verification Email.'}).first().click();
 
   await expect(page.getByText(`Email Verification Sent!`)).toBeVisible();
 });

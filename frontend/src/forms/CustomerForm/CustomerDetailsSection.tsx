@@ -22,8 +22,9 @@ const CustomerDetailsSection =()=>
   return(
     <div>
       <span className="fw-bold text-dark mb-3">
-        {!isLoggedIn && <h1 className="fw-bold">Register</h1>}
+        {!isLoggedIn && <h1 className="fw-bold text-dark">Register</h1>}
         {isLoggedIn && userRole === UserRole.CUSTOMER && <h3 className="fw-bold text-dark">Edit Profile</h3>}
+        {isLoggedIn && userRole !== UserRole.CUSTOMER && <h3 className="fw-bold text-dark">Edit Customer</h3>}
       </span>
       <div className="row">
         <label  className="form-label col-md-6">First Name

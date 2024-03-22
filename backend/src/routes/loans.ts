@@ -30,7 +30,7 @@ router.post('/:customer_id', upload.none(), verifyToken, [
 
   try {
     const newLoanData = req.body;
-    console.log(newLoanData);
+  
     // Generate payment transactions(pre calculated)
     const paymentTransactions = [];
     const paymentSchedule = newLoanData.paymentSchedule;
@@ -108,7 +108,6 @@ router.post('/:customer_id', upload.none(), verifyToken, [
   } 
   catch (error) 
   {
-    console.error(error);
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
@@ -168,7 +167,6 @@ router.get('/:customer_id', verifyToken, async (req: Request, res: Response) => 
       });
 
   } catch (error) {
-      console.error('Error fetching customer loans:', error);
       return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
@@ -275,7 +273,6 @@ router.post('/:customer_id/payment-intent/:paymentTransaction_id', verifyToken, 
   } 
   catch (error) 
   {
-    console.error(error);
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
@@ -283,7 +280,7 @@ router.post('/:customer_id/payment-intent/:paymentTransaction_id', verifyToken, 
 //payment
 router.post('/:customer_id/payment/:paymentTransaction_id',verifyToken, async (req:Request,res:Response) =>
 {
-  console.log('hit pay')
+  
   try  
   {
     const customer_id = req.params.customer_id;
@@ -375,7 +372,7 @@ router.put('/approval/:loan_id',isEmployee, upload.none() ,async(req: Request, r
       return res.status(404).json({message: 'Loan not found.'});
     }
 
-    console.log(interestRate)
+  
     //check if the interestRate has been modified
     if(loan.interestRate !== interestRate && !isNaN(interestRate))
     {
@@ -577,7 +574,6 @@ router.get('/customers/loan-request', isEmployee , async(req:Request,res:Respons
   } 
   catch (error) 
   {
-    console.log(error)
     return res.status(500).json({message: 'Internal Server Error.'});
   }
 });
