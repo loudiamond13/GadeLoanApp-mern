@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "react-query";
 import { useAppContext } from "../../contexts/AppContext";
 import * as apiClient from '../../api-client';
-import ManageUserForm from "../../forms/UserForm/UserForm";
+import UserForm from "../../forms/UserForm/UserForm";
 import {  useNavigate } from "react-router-dom";
 
 
@@ -30,7 +30,7 @@ const EditUserProfile =()=>
     mutate(userFormData)
   }
   
-  return(<ManageUserForm onSave={handleSubmit} user={user}/>);
+  return(<UserForm onSave={handleSubmit} user={user}/>);
 } ;
 
 

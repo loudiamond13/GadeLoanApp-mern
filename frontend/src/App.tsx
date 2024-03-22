@@ -4,7 +4,7 @@ import './App.scss';
 import Layout from "./layouts/Layout";
 import Register from "./pages/register";
 import SignIn from "./pages/shared_pages/SignIn";
-import CreateCustomer from "./pages/customer_pages/CreateCustomer";
+import CustomerRegistration from "./pages/customer_pages/CustomerRegistration";
 import { useAppContext } from "./contexts/AppContext";
 import { UserRole } from "../../backend/src/utilities/constants";
 import Customers from "./pages/employee_admin_pages/Customers";
@@ -41,7 +41,7 @@ function App() {
         element={<Layout><Home/></Layout>}/>
 
         <Route path="/register" 
-        element={<Layout><CreateCustomer/></Layout>}/>
+        element={<Layout><CustomerRegistration/></Layout>}/>
 
         <Route path="/sign-in" 
         element={<Layout><SignIn/></Layout>}/>
@@ -90,9 +90,6 @@ function App() {
 
          <Route path="/customers" 
           element={<Layout><Customers/></Layout>}/>
-
-          <Route path="/customers/create-customer" 
-          element={<Layout><CreateCustomer/></Layout>}/>
 
           <Route path="/loan-requests"
           element={<Layout><CustomerLoanRequests/></Layout>}/>

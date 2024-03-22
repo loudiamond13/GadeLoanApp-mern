@@ -87,7 +87,7 @@ router.post(`/register`,
     await newUser.save();
     await  customer.save();
 
-   //generate token for verification of account
+   //generate token for verification of the account
    const emailToken = await new Token({user_id: newUser._id , emailToken : crypto.randomBytes(32).toString("hex")}).save();
    const url = `${process.env.FRONTEND_URL || process.env.WEB}/users/${newUser._id}/verify/${emailToken.emailToken}`;
    //send an email for verification
@@ -208,7 +208,7 @@ router.put(`/:customer_id`, verifyToken, upload.array('imageFile',1), async(req:
   {
     const updatedCustomer: CustomerType = req.body;
     updatedCustomer.lastUpdated = new Date();
-    console.log(req.params.customer_id);
+    
 
     //find and update the customer
     const customer = await Customer.findOneAndUpdate({_id: req.params.customer_id}, updatedCustomer, {new:true});
@@ -238,8 +238,6 @@ router.put(`/:customer_id`, verifyToken, upload.array('imageFile',1), async(req:
     //upload images
     const updatedImageURL = await uploadImages(imageFile);
     
-    console.log(updatedCustomer.imageUrl);
-    console.log(updatedImageURL.length);
 
     if(updatedImageURL.length === 0)
     {

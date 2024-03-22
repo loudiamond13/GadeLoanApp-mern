@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from "react-query";
-import ManageCustomerForm from "../../forms/CustomerForm/CustomerForm";
+import CustomerForm from "../../forms/CustomerForm/CustomerForm";
 import { useAppContext } from "../../contexts/AppContext";
 import * as apiClient from '../../api-client';
 import { useNavigate } from "react-router-dom";
 
 
-const CreateCustomer = () => 
+const CustomerRegistration = () => 
 {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -31,7 +31,7 @@ const CreateCustomer = () =>
     mutate(customerFormData);
   }
 
-  return(<ManageCustomerForm onCreate={handleCreate} isLoading={isLoading}/>);
+  return(<CustomerForm onCreate={handleCreate} isLoading={isLoading}/>);
 }
 
-export default  CreateCustomer;
+export default  CustomerRegistration;
