@@ -97,6 +97,19 @@ const MainPage = () => {
         <h2 className="text-center">Testing:</h2>
         <p className="text-center">End-to-end testing</p>
       </div>
+      <div className="mt-5">
+        <h2 className="text-center">Source Code:</h2>
+        <p className="text-center">
+          <a
+            href="https://github.com/loudiamond13/LoanApp-MERN"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-primary"
+          >
+            View Source Code
+          </a>
+        </p>
+      </div>
     </div>
   );
 };
