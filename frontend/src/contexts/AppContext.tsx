@@ -43,7 +43,7 @@ export const AppContextProvider =({children}:{children: React.ReactNode})=>
           userFirstName: data?.userFname, userLastName: data?.userLname, stripePromise}}>
       {toast &&
        (<Toast message={toast.message} type={toast.type} onClose={()=> setToast(undefined)}/>)}
-      {children};
+      {children}
     </AppContext.Provider>
   );  
 };
